@@ -25,3 +25,5 @@ add comments above this one
 "Searching for cameras" = "Searching for cameras";
 /* File: PhotoTransferController.m:280 */
 "Set download destination" = "Set download destination";
+
+"Loading image information from camera." = "Loading image information from camera.";

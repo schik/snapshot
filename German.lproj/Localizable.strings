@@ -25,3 +25,5 @@ add comments above this one
 "Searching for cameras" = "Suche nach Kameras";
 /* File: PhotoTransferController.m:280 */
 "Set download destination" = "Speicherort ausw\U00e4hle";
+
+"Loading image information from camera." = "Lade Informationen von der Kamera.";
