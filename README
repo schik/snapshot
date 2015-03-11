@@ -1,0 +1,40 @@
+Snapshot.app
+============
+
+Introduction
+------------
+Snapshot.app is an application to preview photos on your digital camera and
+to download them to your PC. It is based on GNustep and CameraKit, the camera
+framework for GNUstep. This application is only tested on Linux/GNUstep.
+
+This application is GPL'ed. Read the COPYING file.
+All bugs reports should be sent to Andreas Schik <andreas@schik.de>.
+
+
+How to build Snapshot.app
+-------------------------
+o You must install the CameraKit framework first. CameraKit is part of the
+  gsimageapps project and is available here: http://home.gna.org/gsimageapps
+
+o You must also have libgphoto2 and its header files on your system. But this
+  is required for CameraKit anyway.
+
+o To build Snapshot.app simply do the following:
+	make
+
+  Should you get error messages during compilation about the gphoto2 header
+  files not being found try this:
+	make gphoto2_include=<path_to_the_gphoto2_headers>
+
+o To install Snapshot.app in your global GNUstep directory do:
+	make install
+
+
+Running
+-------
+To run Snapshot, simply run Snapshot from the command line. The program will
+automatically try to detect any connected cameras and will display the cameras
+and their directory structure in the outline on the left of the window.
+Should you later on add a camera to the system, simply coose the reload command
+from the menu.
+Snapshot does not need any configuration.

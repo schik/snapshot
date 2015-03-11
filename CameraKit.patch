@@ -1,0 +1,122 @@
+Index: Frameworks/CameraKit/GNUmakefile
+===================================================================
+RCS file: /cvs/gsimageapps/gsimageapps/Frameworks/CameraKit/GNUmakefile,v
+retrieving revision 1.1
+diff -u -r1.1 GNUmakefile
+--- Frameworks/CameraKit/GNUmakefile	2 Apr 2004 07:15:52 -0000	1.1
++++ Frameworks/CameraKit/GNUmakefile	27 Jun 2007 10:34:28 -0000
+@@ -25,7 +25,7 @@
+ 	GSGPhoto2.h \
+ 	GSCamera.h
+ 
+-Camera_OBJC_FILES = \
++CameraKit_OBJC_FILES = \
+ 	GSGPhoto2.m \
+ 	GSCamera.m
+ 
+Index: Frameworks/CameraKit/GSCamera.h
+===================================================================
+RCS file: /cvs/gsimageapps/gsimageapps/Frameworks/CameraKit/GSCamera.h,v
+retrieving revision 1.1
+diff -u -r1.1 GSCamera.h
+--- Frameworks/CameraKit/GSCamera.h	2 Apr 2004 07:00:40 -0000	1.1
++++ Frameworks/CameraKit/GSCamera.h	27 Jun 2007 10:34:28 -0000
+@@ -3,6 +3,7 @@
+ 
+ #include <gphoto2.h>
+ #include <Foundation/Foundation.h>
++#include <AppKit/AppKit.h>
+ 
+ @interface GSCamera: NSObject
+ {
+@@ -23,6 +24,7 @@
+ - (void) deleteFile: (NSString *)file from: (NSString *)path;
+ - (void) putFile: (NSString *)file from: (NSString *)srcPath to: (NSString *)destPath;
+ - (NSString *) description;
++- (NSImage *) thumbnailForFile: (NSString *)file inPath: (NSString *)path;
+ 
+ @end
+ 
+Index: Frameworks/CameraKit/GSCamera.m
+===================================================================
+RCS file: /cvs/gsimageapps/gsimageapps/Frameworks/CameraKit/GSCamera.m,v
+retrieving revision 1.1
+diff -u -r1.1 GSCamera.m
+--- Frameworks/CameraKit/GSCamera.m	2 Apr 2004 07:00:40 -0000	1.1
++++ Frameworks/CameraKit/GSCamera.m	27 Jun 2007 10:34:28 -0000
+@@ -20,7 +20,10 @@
+ {
+   RELEASE(theName);
+   RELEASE(thePort);
+-  free(theCamera);
++  if (theCamera != NULL) {
++    gp_camera_exit(theCamera, NULL);
++    free(theCamera);
++  }
+ }
+ 
+ 
+@@ -107,7 +110,7 @@
+ 		     GP_FILE_TYPE_NORMAL, file, context);
+   gp_file_save(file, [[NSString stringWithFormat: @"%@/%@", destPath, aFile] cString]);
+ 
+-  gp_file_free(file);
++  gp_file_unref(file);
+ 
+   RELEASE(pool);
+ }
+@@ -135,6 +138,27 @@
+ - (NSString *) description
+ {
+   return [self name];
++}
++
++- (NSImage *) thumbnailForFile: (NSString *)file inPath: (NSString *)path
++{
++  NSImage *image = nil;
++  CameraFile *cfile;
++  gp_file_new(&cfile);
++  int result = gp_camera_file_get (theCamera, [path cString],
++                  [file cString], GP_FILE_TYPE_PREVIEW, cfile, NULL);
++  if (result >= 0) {
++      const char *fd;
++      unsigned long fs;
++
++      gp_file_get_data_and_size (cfile, &fd, &fs);
++
++      NSData *data = [NSData dataWithBytes: fd length: fs];
++      image = [[NSImage alloc] initWithData: data];
++  } 
++	
++  gp_file_unref (cfile);
++  return image;
+ }
+ 
+ @end
+Index: Frameworks/CameraKit/GSGPhoto2.m
+===================================================================
+RCS file: /cvs/gsimageapps/gsimageapps/Frameworks/CameraKit/GSGPhoto2.m,v
+retrieving revision 1.1
+diff -u -r1.1 GSGPhoto2.m
+--- Frameworks/CameraKit/GSGPhoto2.m	2 Apr 2004 07:02:46 -0000	1.1
++++ Frameworks/CameraKit/GSGPhoto2.m	27 Jun 2007 10:34:28 -0000
+@@ -85,8 +85,8 @@
+             
+       RELEASE(cam);
+ 
+-      free(name);
+-      free(value);
++//      free(name);
++//      free(value);
+     }
+ 
+   RELEASE(pool);
+@@ -116,7 +116,7 @@
+ 
+ - (int) indexOfCameraNamed: (NSString *) aName
+ {
+-
++  return -1;
+ }
+ 
+ 

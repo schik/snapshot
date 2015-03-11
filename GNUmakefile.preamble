@@ -1,0 +1,15 @@
+
+# Additional flags to pass to the Objective-C compiler
+ADDITIONAL_OBJCFLAGS += -Wall
+
+# Additional flags to pass to the C compiler
+ADDITIONAL_CFLAGS += -Wall
+
+ifneq ($(gphoto2_include),)
+ADDITIONAL_INCLUDE_DIRS += -I$(gphoto2_include)
+endif
+
+Snapshot_GUI_LIBS += -lCameraKit -lgphoto2
+
+ADDITIONAL_LIB_DIRS += \
+	-L$(GNUSTEP_LOCAL_ROOT)/Library/Frameworks/CameraKit.framework/Versions/Current

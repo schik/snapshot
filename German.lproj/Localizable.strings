@@ -1,0 +1,27 @@
+/***
+German.lproj/Localizable.strings
+updated by make_strings 2007-06-01 13:34:28 +0200
+add comments above this one
+***/
+
+
+/*** Strings from PhotoTransferController.m ***/
+/* File: PhotoTransferController.m:191 */
+"Delete" = "L\U00f6schen";
+/* File: PhotoTransferController.m:189 */
+"Delete images" = "Bilder l\U00f6schen";
+/* File: PhotoTransferController.m:247 */
+"Deleting image %@" = "L\U00f6sche Bild %@";
+/* File: PhotoTransferController.m:191 */
+"Do not delete" = "Behalten";
+/* File: PhotoTransferController.m:349 */
+"Downloading image %@" = "\U00dcbertrage Bild %@";
+/* File: PhotoTransferController.m:405 */
+"No cameras detected." = "Keine Kameras gefunden.";
+/* File: PhotoTransferController.m:190 */
+"Please confirm that you wich to delete the sected images."
+= "Bitte best\U00e4tigen Sie, dass Sie die gew\U00e4hlten Bilder l\U00f6schen wollen";
+/* File: PhotoTransferController.m:384 */
+"Searching for cameras" = "Suche nach Kameras";
+/* File: PhotoTransferController.m:280 */
+"Set download destination" = "Speicherort ausw\U00e4hle";
