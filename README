@@ -14,7 +14,10 @@ All bugs reports should be sent to Andreas Schik <andreas@schik.de>.
 How to build Snapshot.app
 -------------------------
 o You must install the CameraKit framework first. CameraKit is part of the
-  gsimageapps project and is available here: http://home.gna.org/gsimageapps
+  gsimageapps project and is available here: http://home.gna.org/gsimageapps.
+  Unfortunately, the original CameraKit lacks some functionality for the
+  preview and is no longer developed. Thus, I have included a patched version
+  of CameraKit into the Snapshot source tree.
 
 o You must also have libgphoto2 and its header files on your system. But this
   is required for CameraKit anyway.
