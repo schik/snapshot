@@ -445,6 +445,21 @@ static NSString *saveAction = @"Save";
 //
 // outline view delegate methods
 //
+BOOL loaderRunning = NO;
+
+/**
+ * Thread method to refresh the camera list.
+ */
+- (void) loadFoldersThread: (id)anObject
+{
+    id pool = [NSAutoreleasePool new];
+    OutlineItem *camera = (OutlineItem *)anObject;
+
+    camera->subFolders = [camera->camera foldersInPath: camera->path];
+    loaderRunning = NO;
+    [pool release];
+    [NSThread exit];
+}
 
 /**
  * Generates the appropriate OutlineItem object for the
@@ -459,16 +474,35 @@ static NSString *saveAction = @"Save";
 	camera->camera = [photo2 cameraAtIndex: index];
 	camera->path = @"/";
 	camera->subFolders = [camera->camera foldersInPath: camera->path];
+        [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
+
+        loaderRunning = YES;
+        [NSThread detachNewThreadSelector: @selector(loadFoldersThread:)
+                                 toTarget: self
+                               withObject: camera];
+	while (YES == loaderRunning) {
+	    [NSThread sleepForTimeInterval: 0.2];
+	}
+
+	[self stopProgressAnimation];
 	return camera;
     }
     if ([item isKindOfClass: [OutlineItem class]]) {
         OutlineItem *parent = (OutlineItem*)item;
         OutlineItem *camera = [[OutlineItem new] autorelease];
         [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
-	camera->camera = parent->camera;
-	camera->path = [[parent->path stringByAppendingPathComponent:
-		[parent->subFolders objectAtIndex: index]] retain];
-	camera->subFolders = [camera->camera foldersInPath: camera->path];
+        camera->camera = parent->camera;
+        camera->path = [[parent->path stringByAppendingPathComponent:
+            [parent->subFolders objectAtIndex: index]] retain];
+
+        loaderRunning = YES;
+	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
+
+        [NSThread detachNewThreadSelector: @selector(loadFoldersThread:)
+                                 toTarget: self
+                               withObject: camera];
+	while (loaderRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+
 	[self stopProgressAnimation];
 	return camera;
     }
@@ -520,26 +554,29 @@ static NSString *saveAction = @"Save";
     OutlineItem * camera = [ol itemAtRow: row];
     if (nil != files) {
         [files release];
+	files = nil;
     }
 
-    [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
+    if (nil != camera) {
+        [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
-    NSArray *ar = [camera->camera filesInPath: camera->path];
-    files = [NSMutableArray new];
-    int i;
-    for (i = 0; i < [ar count]; i++) {
-        TableItem *image = [TableItem new];
-        image->file = [[ar objectAtIndex: i] retain];
-        // We do not download thumbnails right now. This may take
-	// too much time. Instead they are loaded on demand when
-	// the item is displayed and the user wants it.
-        image->image = nil;
-        [files addObject: image];
-        [image release];
+        NSArray *ar = [camera->camera filesInPath: camera->path];
+        files = [NSMutableArray new];
+        int i;
+        for (i = 0; i < [ar count]; i++) {
+            TableItem *image = [TableItem new];
+            image->file = [[ar objectAtIndex: i] retain];
+            // We do not download thumbnails right now. This may take
+	    // too much time. Instead they are loaded on demand when
+	    // the item is displayed and the user wants it.
+            image->image = nil;
+            [files addObject: image];
+            [image release];
+        }
+        [ar release];
+
+        [self stopProgressAnimation];
     }
-    [ar release];
-
-    [self stopProgressAnimation];
 
     [fileList reloadData];
 }
