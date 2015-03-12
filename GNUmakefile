@@ -22,7 +22,8 @@ Snapshot_APPLICATION_ICON=Snapshot.tiff
 #
 
 Snapshot_RESOURCE_FILES= \
-	Images/Snapshot.tiff
+	Resources/Snapshot.gorm \
+	Resources/Images/Snapshot.tiff
 
 #
 # Header files
@@ -55,7 +56,6 @@ Snapshot_PRINCIPAL_CLASS = Snapshot
 
 Snapshot_LANGUAGES=English German
 Snapshot_LOCALIZED_RESOURCE_FILES = \
-	Snapshot.gorm \
 	Localizable.strings
 
 -include GNUmakefile.preamble

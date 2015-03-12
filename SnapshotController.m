@@ -256,6 +256,9 @@ static NSString *saveAction = @"Save";
     NSTableColumn *tableColumn = [fileList tableColumnWithIdentifier: @"column1"];
     [tableColumn setDataCell: cell];
     [cell release];
+
+    [abort setTitle: _(@"Abort Download")];
+    [showThumbs setTitle: _(@"Show thumbnails")];
 }
 
 - (void) applicationDidFinishLaunching: (NSNotification*) notification

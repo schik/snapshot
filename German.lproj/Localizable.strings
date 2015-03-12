@@ -27,3 +27,5 @@ add comments above this one
 "Set download destination" = "Speicherort ausw\U00e4hle";
 
 "Loading image information from camera." = "Lade Informationen von der Kamera.";
+"Show thumbnails" = "Bildvorschau";
+"Abort Download" = "\U00dcbertragung abbrechen";
