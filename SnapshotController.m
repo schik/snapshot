@@ -472,31 +472,22 @@ BOOL loaderRunning = NO;
              child: (int)index
             ofItem: (id)item
 {
+    OutlineItem *camera = nil;
+    
     if (item == nil) {
-        OutlineItem *camera = [[OutlineItem new] autorelease];
+        camera = [[OutlineItem new] autorelease];
 	camera->camera = [photo2 cameraAtIndex: index];
 	camera->path = @"/";
-	camera->subFolders = [camera->camera foldersInPath: camera->path];
-        [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
-
-        loaderRunning = YES;
-        [NSThread detachNewThreadSelector: @selector(loadFoldersThread:)
-                                 toTarget: self
-                               withObject: camera];
-	while (YES == loaderRunning) {
-	    [NSThread sleepForTimeInterval: 0.2];
-	}
-
-	[self stopProgressAnimation];
-	return camera;
     }
     if ([item isKindOfClass: [OutlineItem class]]) {
         OutlineItem *parent = (OutlineItem*)item;
-        OutlineItem *camera = [[OutlineItem new] autorelease];
-        [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
+        camera = [[OutlineItem new] autorelease];
         camera->camera = parent->camera;
         camera->path = [[parent->path stringByAppendingPathComponent:
             [parent->subFolders objectAtIndex: index]] retain];
+    }
+    if (nil != camera) {
+        [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
         loaderRunning = YES;
 	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
@@ -507,9 +498,8 @@ BOOL loaderRunning = NO;
 	while (loaderRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
 
 	[self stopProgressAnimation];
-	return camera;
     }
-    return nil;
+    return camera;
 }
 
 - (BOOL) outlineView: (NSOutlineView *)outlineView
@@ -559,7 +549,6 @@ BOOL loaderRunning = NO;
         [files release];
 	files = nil;
     }
-
     if (nil != camera) {
         [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
