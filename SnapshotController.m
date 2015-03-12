@@ -451,7 +451,7 @@ static NSString *saveAction = @"Save";
 BOOL loaderRunning = NO;
 
 /**
- * Thread method to refresh the camera list.
+ * Thread method to refresh the camera folder list.
  */
 - (void) loadFoldersThread: (id)anObject
 {
@@ -540,6 +540,36 @@ BOOL loaderRunning = NO;
     return nil;
 }
 
+BOOL loadingImages = NO;
+
+/**
+ * Thread method to refresh the image list.
+ */
+- (void) loadImagesThread: (id)anObject
+{
+    id pool = [NSAutoreleasePool new];
+
+    OutlineItem *camera = (OutlineItem *)anObject;
+    NSArray *ar = [camera->camera filesInPath: camera->path];
+    files = [NSMutableArray new];
+    int i;
+    for (i = 0; i < [ar count]; i++) {
+        TableItem *image = [TableItem new];
+        image->file = [[ar objectAtIndex: i] retain];
+        // We do not download thumbnails right now. This may take
+        // too much time. Instead they are loaded on demand when
+        // the item is displayed and the user wants it.
+        image->image = nil;
+        [files addObject: image];
+        [image release];
+    }
+    [ar release];
+
+    loadingImages = NO;
+    [pool release];
+    [NSThread exit];
+}
+
 - (void) outlineViewSelectionDidChange: (NSNotification*) notification
 {
     NSOutlineView *ol = [notification object];
@@ -552,22 +582,15 @@ BOOL loaderRunning = NO;
     if (nil != camera) {
         [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
-        NSArray *ar = [camera->camera filesInPath: camera->path];
-        files = [NSMutableArray new];
-        int i;
-        for (i = 0; i < [ar count]; i++) {
-            TableItem *image = [TableItem new];
-            image->file = [[ar objectAtIndex: i] retain];
-            // We do not download thumbnails right now. This may take
-	    // too much time. Instead they are loaded on demand when
-	    // the item is displayed and the user wants it.
-            image->image = nil;
-            [files addObject: image];
-            [image release];
-        }
-        [ar release];
+        loadingImages = YES;
+	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
 
-        [self stopProgressAnimation];
+        [NSThread detachNewThreadSelector: @selector(loadImagesThread:)
+                                 toTarget: self
+                               withObject: camera];
+	while (loadingImages && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+
+	[self stopProgressAnimation];
     }
 
     [fileList reloadData];
