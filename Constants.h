@@ -29,7 +29,6 @@ extern const int TAG_REFRESH;
 extern const int TAG_SAVESEL;
 extern const int TAG_DELETE;
 
-extern const double ROW_HEIGHT_TEXT;
 extern const double ROW_HEIGHT_IMAGE;
 
 extern NSString *LAST_SAVE_DIR;

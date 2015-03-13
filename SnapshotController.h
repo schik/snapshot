@@ -34,7 +34,6 @@
     id fileList;
     id statusText;
     id progress;
-    id showThumbs;
     id menu;
     id abort;
     NSMutableArray *files;

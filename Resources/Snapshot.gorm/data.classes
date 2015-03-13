@@ -5,8 +5,7 @@
 	    "abortClicked:",
 	    "deleteSelectedClicked:",
 	    "refreshClicked:",
-	    "saveSelectedClicked:",
-	    "showThumbsClicked:"
+	    "saveSelectedClicked:"
 	);
 	Super = NSObject;
     };
@@ -20,7 +19,6 @@
     SnapshotController = {
 	Actions = (
 	    "refreshClicked:",
-	    "showThumbsClicked:",
 	    "saveSelectedClicked:",
 	    "abortClicked:",
 	    "deleteSelectedClicked:"
@@ -30,7 +28,6 @@
 	    fileList,
 	    progress,
 	    statusText,
-	    showThumbs,
 	    menu,
 	    abort
 	);

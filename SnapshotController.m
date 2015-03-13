@@ -258,7 +258,6 @@ static NSString *saveAction = @"Save";
     [cell release];
 
     [abort setTitle: _(@"Abort Download")];
-    [showThumbs setTitle: _(@"Show thumbnails")];
 }
 
 - (void) applicationDidFinishLaunching: (NSNotification*) notification
@@ -321,21 +320,6 @@ static NSString *saveAction = @"Save";
 - (void) saveSelectedClicked: (id)sender
 {
     [self processSelectedImages: saveAction];
-}
-
-/**
- * Reacts on clicking the Show Thumbnails button by
- * setting the row height for the table and then reloading
- * the table.
- */
-- (void) showThumbsClicked: (id)sender
-{
-    if (0 != [showThumbs state]) {
-        [fileList setRowHeight: ROW_HEIGHT_IMAGE];
-    } else {
-        [fileList setRowHeight: ROW_HEIGHT_TEXT];
-    }
-    [fileList reloadData];
 }
 
 - (void) processImages: (id) params
@@ -625,20 +609,16 @@ BOOL loadingImages = NO;
     forTableColumn: (NSTableColumn *) tableColumn
                row: (int) row
 {
-    if (0 != [showThumbs state]) {
-        TableItem *image = [files objectAtIndex: row];
-        if (nil == image->image) {
-            int idx = [cameraTree selectedRow];
-            OutlineItem * camera = [cameraTree itemAtRow: idx];
-            image->image = [self getThumbnail: camera->camera
-                                      forFile: image->file
-                                       atPath: camera->path];
-        }
-        if (image->image) {
-            [aCell setImage: image->image];
-        }
-    } else {
-        [aCell setImage: nil];
+    TableItem *image = [files objectAtIndex: row];
+    if (nil == image->image) {
+        int idx = [cameraTree selectedRow];
+        OutlineItem * camera = [cameraTree itemAtRow: idx];
+        image->image = [self getThumbnail: camera->camera
+                                  forFile: image->file
+                                   atPath: camera->path];
+    }
+    if (image->image) {
+        [aCell setImage: image->image];
     }
 }
 
