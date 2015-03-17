@@ -38,8 +38,8 @@
     NSSize iconSize;
     NSPoint iconPoint;
     NSRect iconBounds;
-    NSTextFieldCell *label;  
-    NSRect labelRect;
+    NSDictionary *iconInfo;
+
     BOOL isSelected;
 }
 
@@ -61,6 +61,13 @@
 - (NSString *) fileName;
 
 - (NSImage *) icon;
+
+- (void) setIconInfo: (NSDictionary *)info;
+
+- (NSUInteger) fileSize;
+- (NSUInteger) height;
+- (NSUInteger) width;
+- (NSString *) date;
 
 @end
 

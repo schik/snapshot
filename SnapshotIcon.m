@@ -25,16 +25,15 @@
 #include "SnapshotIcon.h"
 #include "SnapshotIconView.h"
 
-static NSDictionary *fontAttr = nil;
-
+static NSDateFormatter* dateFormatter = nil;
 
 @implementation SnapshotIcon
 
 - (void)dealloc
 {
     RELEASE (icon);
-    RELEASE (label);
     RELEASE (fileName);
+    RELEASE(iconInfo);
 
     [super dealloc];
 }
@@ -44,10 +43,9 @@ static NSDictionary *fontAttr = nil;
     static BOOL initialized = NO;
 
     if (initialized == NO) {
-        NSFont *font = [NSFont systemFontOfSize: 10];
-
-        ASSIGN (fontAttr, [NSDictionary dictionaryWithObject: font
-                               forKey: NSFontAttributeName]);  
+        dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateStyle: NSDateFormatterLongStyle];
+        [dateFormatter setTimeStyle: NSDateFormatterMediumStyle];
         initialized = YES;
     }
 }
@@ -59,13 +57,6 @@ static NSDictionary *fontAttr = nil;
     self = [super init];
 
     if (self) {
-        labelRect = NSZeroRect;
-    
-        labelRect.size = [fname sizeWithAttributes: fontAttr];
-        label = [NSTextFieldCell new];
-        [label setStringValue: fname];
-	[label setFont: [NSFont systemFontOfSize: 10]];
-    
 	container = cont;
         ASSIGN (fileName, fname);
         ASSIGN (icon, img);
@@ -76,6 +67,17 @@ static NSDictionary *fontAttr = nil;
     }
   
     return self;
+}
+
+- (void) setIconInfo: (NSDictionary *)info
+{
+    if (nil != iconInfo) {
+        [iconInfo release];
+        iconInfo = nil;
+    }
+    if (nil != info) {
+        ASSIGN(iconInfo, info);
+    }
 }
 
 - (void) select
@@ -114,6 +116,38 @@ static NSDictionary *fontAttr = nil;
     return icon;
 }
 
+- (NSUInteger) fileSize
+{
+    if (nil != iconInfo) {
+        return [[iconInfo objectForKey: @"size"] intValue];
+    }
+    return 0;
+}
+
+- (NSUInteger) height;
+{
+    if (nil != iconInfo) {
+        return [[iconInfo objectForKey: @"height"] intValue];
+    }
+    return 0;
+}
+
+- (NSUInteger) width;
+{
+    if (nil != iconInfo) {
+        return [[iconInfo objectForKey: @"width"] intValue];
+    }
+    return 0;
+}
+
+- (NSString *) date;
+{
+    if (nil != iconInfo) {
+        return [dateFormatter stringFromDate: [iconInfo objectForKey: @"mtime"]];
+    }
+    return @"";
+}
+
 - (NSSize) iconSize
 {
     return iconSize;
@@ -127,24 +161,14 @@ static NSDictionary *fontAttr = nil;
 - (void) tile
 {
     NSRect rect = [self frame];
-    float yspace = 2.0;
 
     iconPoint.x = floor((rect.size.width - iconSize.width) / 2 + 0.5);
-    iconPoint.y = floor(labelRect.size.height + 2*yspace + 0.5);
+    iconPoint.y = floor((rect.size.height - iconSize.height) / 2 + 0.5);
  
     iconBounds.origin.x = iconPoint.x;
     iconBounds.origin.y = iconPoint.y;
     iconBounds = NSIntegralRect(iconBounds);
 
-    if (labelRect.size.width >= rect.size.width) {
-        labelRect.origin.x = 0;
-    } else {
-        labelRect.origin.x = (rect.size.width - labelRect.size.width) / 2;
-    }
-  
-    labelRect.origin.y = iconPoint.y - labelRect.size.height - yspace;
-    labelRect = NSIntegralRect(labelRect);
- 
     [self setNeedsDisplay: YES]; 
 }
 
@@ -154,8 +178,7 @@ static NSDictionary *fontAttr = nil;
     NSPoint selfloc = [self convertPoint: location fromView: nil];
     BOOL onself = NO;
 
-    onself = ([self mouse: selfloc inRect: iconBounds]
-                        || [self mouse: selfloc inRect: labelRect]);
+    onself = ([self mouse: selfloc inRect: iconBounds]);
 
     if (onself) {
         if ([theEvent clickCount] == 1) {
@@ -219,8 +242,6 @@ static NSDictionary *fontAttr = nil;
 	NSRectFill(rect);
     }
     [icon compositeToPoint: iconPoint operation: NSCompositeSourceOver];
-
-    [label drawWithFrame: labelRect inView: self];
 }
 
 @end
