@@ -23,7 +23,6 @@
 #import <AppKit/AppKit.h>
 
 #import "Inspector.h"
-#import "ContentViewersProtocol.h"
 #import "Attributes.h"
 
 #define ATTRIBUTES   0
@@ -34,152 +33,120 @@ static NSString *nibName = @"InspectorWin";
 
 - (void)dealloc
 {
-  [nc removeObserver: self];
-  RELEASE (inspectors);
-  RELEASE (win);
+    RELEASE (inspectors);
+    RELEASE (window);
    
-  [super dealloc];
+    [super dealloc];
 }
 
-- (id)init
+- (id) init
 {
-  self = [super init];
+    self = [super init];
   
-  if (self) {
-    if ([NSBundle loadNibNamed: nibName owner: self] == NO) {
-      NSLog(@"failed to load %@!", nibName);
-      DESTROY (self);
-      return self;
-    } 
+    if (self) {
+        if ([NSBundle loadNibNamed: nibName owner: self] == NO) {
+            NSLog(@"failed to load %@!", nibName);
+            DESTROY (self);
+            return self;
+        } 
     
-    [win setFrameUsingName: @"inspector"];
-    [win setDelegate: self];
+      [window setFrameUsingName: @"inspector"];
+      [window setDelegate: self];
   
-    inspectors = [NSMutableArray new];
-    nc = [NSNotificationCenter defaultCenter];
+      inspectors = [NSMutableArray new];
 
-    while ([[popUp itemArray] count] > 0) {
-      [popUp removeItemAtIndex: 0];
+      while ([[popUp itemArray] count] > 0) {
+          [popUp removeItemAtIndex: 0];
+      }
+
+      currentInspector = [[Attributes alloc] initForInspector: self];
+      [inspectors insertObject: currentInspector atIndex: ATTRIBUTES]; 
+      [popUp insertItemWithTitle: NSLocalizedString(@"Attributes", @"") 
+                         atIndex: ATTRIBUTES];
+      [[popUp itemAtIndex: ATTRIBUTES] setKeyEquivalent: @"1"];
+      DESTROY (currentInspector);
     }
-
-    currentInspector = [[Attributes alloc] initForInspector: self];
-    [inspectors insertObject: currentInspector atIndex: ATTRIBUTES]; 
-    [popUp insertItemWithTitle: NSLocalizedString(@"Attributes", @"") 
-                       atIndex: ATTRIBUTES];
-    [[popUp itemAtIndex: ATTRIBUTES] setKeyEquivalent: @"1"];
-    DESTROY (currentInspector);
-
-    [nc addObserver: self 
-           selector: @selector(watcherNotification:) 
-               name: @"GWFileWatcherFileDidChangeNotification"
-             object: nil];    
-  }
   
-  return self;
+    return self;
 }
 
 - (void)activate
 {
-  [win makeKeyAndOrderFront: nil];
+    [window makeKeyAndOrderFront: nil];
 
-  if (currentInspector == nil) {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    id entry = [defaults objectForKey: @"last_active_inspector"];
-    int index = 0;
+    if (currentInspector == nil) {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        id entry = [defaults objectForKey: @"last_active_inspector"];
+        int index = 0;
     
-    if (entry) {
-      index = [entry intValue];
-      index = ((index < 0) ? 0 : index);
+        if (entry) {
+            index = [entry intValue];
+            index = ((index < 0) ? 0 : index);
+        }
+    
+        [popUp selectItemAtIndex: index];
+        [self activateInspector: popUp];
     }
-    
-    [popUp selectItemAtIndex: index];
-    [self activateInspector: popUp];
-  }
 }
 
-- (void)setCurrentSelection:(NSArray *)selection
+- (void) setCurrentSelection: (NSArray *)selection
 {
-  if (selection) {
+    if (selection) {
 //    ASSIGN (currentPaths, selection);
-    if (currentInspector) {
+        if (currentInspector) {
 //      [currentInspector activateForPaths: currentPaths];
+        }
     }
-  }
 }
 
-- (BOOL)canDisplayDataOfType:(NSString *)type
+- (IBAction) activateInspector: (id)sender
 {
-  return [[self contents] canDisplayDataOfType: type];
-}
-
-- (void)showData:(NSData *)data 
-          ofType:(NSString *)type
-{
-  [[self contents] showData: data ofType: type];
-}
-
-- (IBAction)activateInspector:(id)sender
-{
-  id insp = [inspectors objectAtIndex: [sender indexOfSelectedItem]];
+    id insp = [inspectors objectAtIndex: [sender indexOfSelectedItem]];
   
-	if (currentInspector != insp) {
-    currentInspector = insp;
-	  [win setTitle: [insp winname]];
-	  [inspBox setContentView: [insp inspView]];	 
-	}
+    if (currentInspector != insp) {
+        currentInspector = insp;
+        [window setTitle: [insp winname]];
+        [inspBox setContentView: [insp inspView]];	 
+    }
   
 //  if (currentPaths) {
 //	  [insp activateForPaths: currentPaths];
 //  }
 }
 
-- (void)showAttributes
+- (void) showAttributes
 {
-  if ([win isVisible] == NO) {
-    [self activate];
-  }
-  [popUp selectItemAtIndex: ATTRIBUTES];
-  [self activateInspector: popUp];
+    if ([window isVisible] == NO) {
+        [self activate];
+    }
+    [popUp selectItemAtIndex: ATTRIBUTES];
+    [self activateInspector: popUp];
 }
 
-- (id)attributes
+- (id) attributes
 {
-  return [inspectors objectAtIndex: ATTRIBUTES];
+    return [inspectors objectAtIndex: ATTRIBUTES];
 }
 
-- (NSWindow *)win
+- (NSWindow *)window
 {
-  return win;
+    return window;
 }
 
 - (void)updateDefaults
 {
-  NSNumber *index = [NSNumber numberWithInt: [popUp indexOfSelectedItem]];
+    NSNumber *index = [NSNumber numberWithInt: [popUp indexOfSelectedItem]];
 
-  [[NSUserDefaults standardUserDefaults] setObject: index 
-                                            forKey: @"last_active_inspector"];
-  [[self attributes] updateDefaults];
-  [win saveFrameUsingName: @"inspector"];
+    [[NSUserDefaults standardUserDefaults] setObject: index 
+                                              forKey: @"last_active_inspector"];
+    [[self attributes] updateDefaults];
+    [window saveFrameUsingName: @"InspectorsWin"];
 }
 
 - (BOOL)windowShouldClose:(id)sender
 {
-  [win saveFrameUsingName: @"inspector"];
-	return YES;
-}
-
-- (void)watcherNotification:(NSNotification *)notif
-{
-  NSDictionary *info = (NSDictionary *)[notif object];
-  NSString *path = [info objectForKey: @"path"];
-  
-  if (watchedPath && [watchedPath isEqual: path]) {
-    int i;
-
-    for (i = 0; i < [inspectors count]; i++) {
-      [[inspectors objectAtIndex: i] watchedPathDidChange: info];
-    }
-  }
+    [window saveFrameUsingName: @"InspectorsWin"];
+    return YES;
 }
 
 @end

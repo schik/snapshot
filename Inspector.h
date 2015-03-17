@@ -30,36 +30,27 @@
 
 @interface Inspector : NSObject 
 {
-    NSWindow *win;
+    NSWindow *window;
     NSPopUpButton *popUp;
     NSBox *inspBox;
 
     NSMutableArray *inspectors;
     id currentInspector;
-
-    NSNotificationCenter *nc; 
 }
 
 - (void)activate;
 
 - (void)setCurrentSelection:(NSArray *)selection;
 
-- (BOOL)canDisplayDataOfType:(NSString *)type;
+- (IBAction) activateInspector: (id)sender;
 
-- (void)showData:(NSData *)data 
-          ofType:(NSString *)type;
+- (void) showAttributes;
 
-- (IBAction)activateInspector:(id)sender;
+- (id) attributes;
 
-- (void)showAttributes;
-
-- (id)attributes;
-
-- (NSWindow *)win;
+- (NSWindow *)window;
 
 - (void)updateDefaults;
-
-- (void)watcherNotification:(NSNotification *)notif;
 
 @end
 

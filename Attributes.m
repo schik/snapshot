@@ -28,6 +28,7 @@
 #import <AppKit/AppKit.h>
 #import "Attributes.h"
 #import "Inspector.h"
+#import "SnapshotIcon.h"
 
 #define SINGLE 0
 #define MULTIPLE 1
@@ -36,259 +37,97 @@ static NSString *nibName = @"Attributes";
 
 @implementation Attributes
 
-- (void)dealloc
+- (void) dealloc
 {
-  [nc removeObserver: self];  
-  RELEASE (mainBox);
+    [[NSNotificationCenter defaultCenter] removeObserver: self
+                            name: @"ImageSelectionChanged"
+                          object: nil];
 
-  [super dealloc];
+    RELEASE (mainBox);
+
+    [super dealloc];
 }
 
-- (id)initForInspector:(id)insp
+- (id) initForInspector: (id)insp
 {
-  self = [super init];
+    self = [super init];
   
-  if (self) {
-    NSBundle *bundle = [NSBundle bundleForClass: [insp class]];
-    NSString *imagepath;
+    if (self) {
+        if ([NSBundle loadNibNamed: nibName owner: self] == NO) {
+            NSLog(@"failed to load %@!", nibName);
+            DESTROY (self);
+            return self;
+        } 
 
-    if ([NSBundle loadNibNamed: nibName owner: self] == NO) {
-      NSLog(@"failed to load %@!", nibName);
-      DESTROY (self);
-      return self;
+        RETAIN(mainBox);
+
+        inspector = insp;
+
+        [[NSNotificationCenter defaultCenter] addObserver: self
+                                selector: @selector(imageChanged:)
+                                    name: @"ImageSelectionChanged"
+                                  object: nil];
     } 
-
-    RETAIN (mainBox);
-    RELEASE (win);
-
-    inspector = insp;
-    [iconView setInspector: inspector];
-
-    nc = [NSNotificationCenter defaultCenter];
-    
-    /* Internationalization */
-    [linkToLabel setStringValue: NSLocalizedString(@"Link to:", @"")];
-    [sizeLabel setStringValue: NSLocalizedString(@"Size:", @"")];
-    [calculateButt setTitle: NSLocalizedString(@"Calculate", @"")];
-    [ownerLabel setStringValue: NSLocalizedString(@"Owner:", @"")];
-    [groupLabel setStringValue: NSLocalizedString(@"Group:", @"")];
-    [changedDateBox setTitle: NSLocalizedString(@"Changed", @"")];
-    [permsBox setTitle: NSLocalizedString(@"Permissions", @"")];
-    [readLabel setStringValue: NSLocalizedString(@"Read", @"")];
-    [writeLabel setStringValue: NSLocalizedString(@"Write", @"")];
-    [executeLabel setStringValue: NSLocalizedString(@"Execute", @"")];
-    [uLabel setStringValue: NSLocalizedString(@"Owner", @"")];
-    [gLabel setStringValue: NSLocalizedString(@"Group", @"")];
-    [oLabel setStringValue: NSLocalizedString(@"Others", @"")];
-    [insideButt setTitle: NSLocalizedString(@"also apply to files inside selection", @"")];
-    [revertButt setTitle: NSLocalizedString(@"Revert", @"")];
-    [okButt setTitle: NSLocalizedString(@"OK", @"")];
-  } 
 		
-	return self;
+    return self;
 }
 
-- (NSView *)inspView
+- (NSView *) inspView
 {
-  return mainBox;
+    return mainBox;
 }
 
-- (NSString *)winname
+- (NSString *) winname
 {
-  return NSLocalizedString(@"Attributes Inspector", @"");
+    return _(@"Properties Inspector");
 }
 
-- (void)activateForPaths:(NSArray *)paths
+- (void) imageChanged: (id)notification
 {
-  NSString *fpath;
-  NSString *ftype;
-  NSString *usr, *grp, *tmpusr, *tmpgrp;
-  NSDate *date;
-  NSCalendarDate *cdate;
-  NSDictionary *attrs;
-  unsigned long perms;
-  BOOL sameOwner, sameGroup;
-  int i;
+    [self setImages: [[notification userInfo] objectForKey: @"Images"]];
+}
 
-  sizeStop = YES;
+- (void) removeImages
+{
+    NSImage *fileIcon = [NSImage imageNamed: @"iconDelete.tiff"];
+    [iconView setImage: fileIcon];
 
-  if (paths == nil) {
-    DESTROY (insppaths);
-    return;
-  }
-  	
-  attrs = [fm fileAttributesAtPath: [paths objectAtIndex: 0] traverseLink: NO];
+    [titleField setStringValue: _(@"No image selected")];
+    [exposureField setStringValue: @""];
+    [sizeField setStringValue: @""];
+    [dateField setStringValue: @""];
+}
 
-  ASSIGN (insppaths, paths);
-  pathscount = [insppaths count];	
-  ASSIGN (currentPath, [paths objectAtIndex: 0]);		
-  ASSIGN (attributes, attrs);	
-
-  [revertButt setEnabled: NO];
-  [okButt setEnabled: NO];
-  	
-  if (pathscount == 1)
-    { /* Single Selection */
-
-      FSNode *node = [FSNode nodeWithPath: currentPath];
-      NSImage *icon = [[FSNodeRep sharedInstance] iconOfSize: ICNSIZE forNode: node];
-      
-      [iconView setImage: icon];
-      [titleField setStringValue: [currentPath lastPathComponent]];
-      
-      usr = [attributes objectForKey: NSFileOwnerAccountName];
-      grp = [attributes objectForKey: NSFileGroupOwnerAccountName];
-      date = [attributes objectForKey: NSFileModificationDate];
-      perms = [[attributes objectForKey: NSFilePosixPermissions] unsignedLongValue];			
-      
-#ifdef __WIN32__
-      iamRoot = YES;
-#else
-      iamRoot = (geteuid() == 0);
-#endif
-      
-      isMyFile = ([NSUserName() isEqual: usr]);
-      
-      [insideButt setState: NSOffState];
-      
-      ftype = [attributes objectForKey: NSFileType];
-      if ([ftype isEqual: NSFileTypeDirectory] == NO)
-        {	
-          NSString *fsize = fsDescription([[attributes objectForKey: NSFileSize] unsignedLongLongValue]);
-          [sizeField setStringValue: fsize]; 
-          [calculateButt setEnabled: NO];
-          [insideButt	setEnabled: NO];
-        }
-      else
-        {
-          [sizeField setStringValue: @"--"]; 
-          
-          if (autocalculate)
-            {
-              if (sizer == nil)
-                [self startSizer];
-              else
-                [sizer computeSizeOfPaths: insppaths];
-            }
-          else
-            {
-              [calculateButt setEnabled: YES];
-            }
-          
-          [insideButt	setEnabled: YES];
-        }
-      
-                
-      if ([ftype isEqual: NSFileTypeSymbolicLink])
-        {
-          NSString *s;
-
-          s = [fm pathContentOfSymbolicLinkAtPath: currentPath];
-          s = relativePathFit(linkToField, s);
-          [linkToField setStringValue: s];
-          [linkToLabel setTextColor: [NSColor blackColor]];		
-          [linkToField setTextColor: [NSColor blackColor]];		      
-        }
-      else
-        {
-          [linkToField setStringValue: @""];
-          [linkToLabel setTextColor: [NSColor darkGrayColor]];		
-          [linkToField setTextColor: [NSColor darkGrayColor]];		
-        }
-      
-      [ownerField setStringValue: usr]; 
-      [groupField setStringValue: grp]; 
-      
-      [self setPermissions: perms isActive: (iamRoot || isMyFile)];
-      
-      cdate = [date dateWithCalendarFormat: nil timeZone: nil];	
-      [timeDateView setDate: cdate];
-      
+- (void) setImages: (NSArray *)images
+{
+    if (!images || [images count] == 0) {
+        [self removeImages];
+        return;
     }
-  else
-    { /* Multiple Selection */
-      NSImage *icon = [[FSNodeRep sharedInstance] multipleSelectionIconOfSize: ICNSIZE];
-      NSString *items = NSLocalizedString(@"items", @"");
-      
-      items = [NSString stringWithFormat: @"%lu %@", (unsigned long)[paths count], items];
-      [titleField setStringValue: items];  
-      [iconView setImage: icon];
-  
-      [attributes objectForKey: NSFileType];
-      
-      [sizeField setStringValue: @"--"]; 
-      
-      if (autocalculate)
-        {
-          if (sizer == nil)
-            [self startSizer];
-          else
-            [sizer computeSizeOfPaths: insppaths];
-        }
-      else
-        {
-          [calculateButt setEnabled: YES];
-        }
-    
-      usr = [attributes objectForKey: NSFileOwnerAccountName];
-      grp = [attributes objectForKey: NSFileGroupOwnerAccountName];
-      date = [attributes objectForKey: NSFileModificationDate];		
+    if ([images count] > 1) {
+        NSImage *fileIcon = [NSImage imageNamed: @"iconMultiSelection.tiff"];
+        [iconView setImage: fileIcon];
 
-      sameOwner = YES;
-      sameGroup = YES;
-		
-      for (i = 0; i < [insppaths count]; i++)
-        {
-          fpath = [insppaths objectAtIndex: i];
-          attrs = [fm fileAttributesAtPath: fpath traverseLink: NO];
-          tmpusr = [attrs objectForKey: NSFileOwnerAccountName];
-          if ([tmpusr isEqualToString: usr] == NO)
-            sameOwner = NO;
-          tmpgrp = [attrs objectForKey: NSFileGroupOwnerAccountName];
-          if ([tmpgrp isEqualToString: grp] == NO)
-            sameGroup = NO;
-        }
-      
-      if(sameOwner == NO)
-        usr = @"-";
-
-      if(sameGroup == NO)
-        grp = @"-";
-
-      
-#ifdef __WIN32__
-      iamRoot = YES;
-#else
-      iamRoot = (geteuid() == 0);
-#endif
-                
-      isMyFile = ([NSUserName() isEqualToString: usr]);	
-				
-      [linkToLabel setTextColor: [NSColor darkGrayColor]];		
-      [linkToField setStringValue: @""];
-
-      [ownerField setStringValue: usr]; 
-      [groupField setStringValue: grp]; 
-    
-      [insideButt setEnabled: YES];
-    
-      [self setPermissions: 0 isActive: (iamRoot || isMyFile)];
-		
-      cdate = [date dateWithCalendarFormat: nil timeZone: nil];	
-      [timeDateView setDate: cdate];
+        [titleField setStringValue:
+	    [NSString stringWithFormat: _(@"%d Images selected"), [images count]]];
+        [exposureField setStringValue: @""];
+        [sizeField setStringValue: @""];
+        [dateField setStringValue: @""];
+	return;
     }
-	
-  [mainBox setNeedsDisplay: YES];
+
+    SnapshotIcon *snIcon = [images objectAtIndex: 0];
+    [iconView setImage: [snIcon icon]];
+
+    [titleField setStringValue: [snIcon fileName]];
+    [exposureField setStringValue: @""];
+    [sizeField setStringValue: @""];
+    [dateField setStringValue: @""];
 }
 
-- (void)watchedPathDidChange:(NSDictionary *)info
-{
-}
 
 - (void)updateDefaults
 {
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  [defaults setBool: autocalculate forKey: @"auto_calculate_sizes"];
 }
 
 @end

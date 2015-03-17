@@ -24,30 +24,30 @@
 
 @interface Attributes : NSObject
 {
-     id win;
-     id mainBox;
+    id window;
+    id mainBox;
+    id topBox;
 
-     id titleField;
+    id dateField;
 
-     id fileName;
-     id fileSize;
+    id exposureField;
+    id sizeField;
   
-     id imageSize;
-     id SomeOther;
+    id iconView;
+    id titleField;
 
     NSDictionary *attributes;
     id inspector;
-    NSNotificationCenter *nc;  
 }
 
-- (id)initForInspector:(id)insp;
+- (id) initForInspector: (id)insp;
 
-- (NSView *)inspView;
+- (NSView *) inspView;
 
-- (NSString *)winname;
+- (NSString *) winname;
 
-- (void)activateForPaths:(NSArray *)paths;
+- (void) setImages: (NSArray *)images;
 
-- (void)updateDefaults;
+- (void) updateDefaults;
 
 @end
