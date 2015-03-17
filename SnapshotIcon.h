@@ -1,5 +1,5 @@
 /*
- *    SnapshotController.h
+ *    SnapshotIcon.h
  *
  *    Copyright (c) 2015
  *
@@ -20,36 +20,48 @@
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef SNAPSHOTCONTROLLER_H_INC
-#define SNAPSHOTCONTROLLER_H_INC
+#ifndef SNAPSHOTICON_H_INC
+#define SNAPSHOTICON_H_INC
 
+#include <Foundation/Foundation.h>
+#include <AppKit/NSView.h>
 
-#include <AppKit/AppKit.h>
-
-#include <CameraKit/GSGPhoto2.h>
-
-#include "Inspector.h"
-
+@class NSImage;
+@class NSTextFieldCell;
 @class SnapshotIconView;
 
-@interface SnapshotController : NSWindowController
+@interface SnapshotIcon : NSView
 {
-    id cameraTree;
-    SnapshotIconView *iconView;
-    id statusText;
-    id progress;
-    id menu;
-    id abort;
-    id window;
-    GSGPhoto2 *photo2;
-    Inspector *inspector;
+    SnapshotIconView *container;
+    NSImage *icon;
+    NSString *fileName;
+    NSSize iconSize;
+    NSPoint iconPoint;
+    NSRect iconBounds;
+    NSTextFieldCell *label;  
+    NSRect labelRect;
+    BOOL isSelected;
 }
 
-- (void) refreshClicked: (id)sender;
-- (void) showInspector: (id)sender;
-- (void) showPropertyInspector: (id)sender;
+- (id) initWithIconImage: (NSImage *) img
+                fileName: (NSString *) fname
+            andContainer: (SnapshotIconView *) cont;
+
+- (NSSize) iconSize;
+- (NSRect) iconBounds;
+
+- (void) tile;
+ 
+- (void) select;
+
+- (void) unselect;
+
+- (BOOL) isSelected;
+
+- (NSString *) fileName;
+
+- (NSImage *) icon;
 
 @end
 
-
-#endif
+#endif // SNAPSHOTICON_H_INC

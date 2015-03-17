@@ -4,6 +4,7 @@
 	Actions = (
 	    "abortClicked:",
 	    "deleteSelectedClicked:",
+	    "showPropertyInspector:",
 	    "refreshClicked:",
 	    "saveSelectedClicked:"
 	);
@@ -21,7 +22,8 @@
 	    "refreshClicked:",
 	    "saveSelectedClicked:",
 	    "abortClicked:",
-	    "deleteSelectedClicked:"
+	    "deleteSelectedClicked:",
+	    "showPropertyInspector:"
 	);
 	Outlets = (
 	    cameraTree,

@@ -25,6 +25,8 @@
 #include <CameraKit/GSCamera.h>
 
 #include "SnapshotController.h"
+#include "SnapshotIcon.h"
+#include "SnapshotIconView.h"
 #include "ThumbnailCell.h"
 #include "Constants.h"
 
@@ -44,15 +46,34 @@ static NSString *saveAction = @"Save";
     GSCamera *camera;
     NSString *path;
     NSArray *subFolders;
+    NSMutableArray *files;
 }
+
+- (id) init;
+
 @end
 
 @implementation OutlineItem
+
+- (id) init
+{
+    self = [super init];
+    if (self != nil) {
+        camera = nil;
+	path = nil;
+	subFolders = nil;
+        files = nil;
+    }
+    return self;
+}
 
 - (void) dealloc
 {
     // We expect that the values for ivars are retained
     // for us by our creator. 
+    if (nil != files) {
+        [files release];
+    }
     if (nil != subFolders) {
         [subFolders release];
     }
@@ -64,34 +85,6 @@ static NSString *saveAction = @"Save";
 
 @end
 
-
-/**
- * This class represents the items stored in the TableView
- */
-@interface TableItem: NSObject
-{
-@public
-    NSString *file;
-    NSImage *image;
-}
-@end
-
-@implementation TableItem
-
-- (void) dealloc
-{
-    // We expect that the values for ivars are retained
-    // for us by our creator. 
-    if (nil != image) {
-        [image release];
-    }
-    if (nil != file) {
-        [file release];
-    }
-    [super dealloc];
-}
-
-@end
 
 @interface SnapshotController (Private)
 
@@ -124,16 +117,9 @@ static NSString *saveAction = @"Save";
     }
 
     NSMutableDictionary *threadParams = [NSMutableDictionary new];
-    NSMutableArray * images = [NSMutableArray new];
     int idx = [cameraTree selectedRow];
     OutlineItem * camera = [cameraTree itemAtRow: idx];
-    NSEnumerator *e = [fileList selectedRowEnumerator];
-    NSNumber *n;
-
-    while ((n = [e nextObject]) != nil) {
-        TableItem *image = [files objectAtIndex: [n intValue]];
-        [images addObject: image];
-    }
+    NSArray * images = [iconView selectedIcons];
 
     if ([action isEqualToString: saveAction]) {
         [threadParams setObject: dest forKey: DOWNLOAD_PATH];
@@ -160,7 +146,6 @@ static NSString *saveAction = @"Save";
                              toTarget: self
                            withObject: threadParams];
 
-    [images release];
     [threadParams release];
 }
 
@@ -226,7 +211,6 @@ static NSString *saveAction = @"Save";
     self = [super init];
     if (self != nil) {
         photo2 = nil;
-        files = nil;
     }
     return self;
 }
@@ -236,8 +220,8 @@ static NSString *saveAction = @"Save";
     if (nil != photo2) {
         [photo2 release];
     }
-    if (nil != files) {
-        [files release];
+    if (nil != inspector) {
+        [inspector release];
     }
     [super dealloc];
 }
@@ -251,13 +235,11 @@ static NSString *saveAction = @"Save";
     [progress setControlTint: NSProgressIndicatorPreferredThickness];
     [progress setUsesThreadedAnimation: NO];
 
-    // Use our image cell type for the outline
-    NSCell *cell = [ThumbnailCell new];
-    NSTableColumn *tableColumn = [fileList tableColumnWithIdentifier: @"column1"];
-    [tableColumn setDataCell: cell];
-    [cell release];
+    // We set our autosave window frame name and restore the one from the user's defaults.
+    [[self window] setFrameAutosaveName: @"SnapshotWindow"];
+    [[self window] setFrameUsingName: @"SnapshotWindow"];
 
-    [abort setTitle: _(@"Abort Download")];
+    inspector = [Inspector new];
 }
 
 - (void) applicationDidFinishLaunching: (NSNotification*) notification
@@ -275,7 +257,7 @@ static NSString *saveAction = @"Save";
         return NO;
     }
     if (((TAG_SAVESEL == [item tag]) || (TAG_DELETE == [item tag]))
-            && (0 == [fileList numberOfSelectedRows])) {
+            && (0 == [[iconView selectedIcons] count])) {
         return NO;
     }
     return YES;
@@ -293,8 +275,8 @@ static NSString *saveAction = @"Save";
     NSImage *image = [camera thumbnailForFile: file inPath: path];
     if (image) {
         NSSize size = [image size];
-	// scale the image to our tablerow height
-        double factor = (ROW_HEIGHT_IMAGE-4) / size.height;
+	// scale the image to our tablerow width
+	double factor = THUMBNAIL_WIDTH / size.width;
         size.width *= factor;
         size.height *= factor;
         [image setScalesWhenResized: YES];
@@ -330,31 +312,39 @@ static NSString *saveAction = @"Save";
     NSString *action = [params objectForKey: ACTION];
     NSString *downloadPath = nil;
     int counter = 0;
-    TableItem *image;
+    SnapshotIcon *image;
     NSString *statusString;
 
     if ([action isEqualToString: saveAction]) {
         downloadPath = [params objectForKey: DOWNLOAD_PATH];
-        statusString = _(@"Deleting image %@");
-    } else {
         statusString = _(@"Downloading image %@");
+    } else {
+        statusString = _(@"Deleting image %@");
     }
     NSEnumerator *e = [images objectEnumerator];
     while (!abortDownload && (image = [e nextObject]) != nil) {
-        [statusText setStringValue: [NSString stringWithFormat: statusString, image->file]];
+        [statusText setStringValue: [NSString stringWithFormat: statusString, [image fileName]]];
         if ([action isEqualToString: saveAction]) {
-            [camera->camera getFile: image->file from: camera->path to:downloadPath];
+            [camera->camera getFile: [image fileName] from: camera->path to: downloadPath];
         } else {
-            [camera->camera deleteFile: image->file from: camera->path];
+            [camera->camera deleteFile: [image fileName] from: camera->path];
             // Remove the object from our data cache
-	    [files removeObject: image];
+	    [camera->files removeObject: image];
         }
 	[progress setDoubleValue: ++counter];
     }
 
     // Update the UI
     if ([action isEqualToString: deleteAction]) {
-        [fileList reloadData];
+        [iconView removeAllIcons];
+        unsigned i;
+        for (i = 0; i < [camera->files count]; i++) {
+            CREATE_AUTORELEASE_POOL(pool);
+            SnapshotIcon *icon = [camera->files objectAtIndex: i];
+            [iconView addIcon: icon];
+            RELEASE (pool);
+        }
+        [iconView tile];
     }
 
     [statusText setStringValue: @""];
@@ -368,6 +358,18 @@ static NSString *saveAction = @"Save";
     [NSThread exit];
 }
 
+- (void) showInspector: (id)sender
+{
+    [inspector activate];
+}
+
+- (void) showPropertyInspector: (id)sender
+{
+    [self showInspector: nil]; 
+    [inspector showAttributes];
+    [iconView selectionDidChange];
+}
+
 /**
  * Starts a new background thread to refresh the camera list.
  */
@@ -375,6 +377,7 @@ static NSString *saveAction = @"Save";
 {
     if (nil != photo2) {
         [photo2 release];
+	photo2 = nil;
     }
     // We do not know how long it will take. Hence use an
     // indeterminate progress bar here.
@@ -535,16 +538,16 @@ BOOL loadingImages = NO;
 
     OutlineItem *camera = (OutlineItem *)anObject;
     NSArray *ar = [camera->camera filesInPath: camera->path];
-    files = [NSMutableArray new];
     int i;
     for (i = 0; i < [ar count]; i++) {
-        TableItem *image = [TableItem new];
-        image->file = [[ar objectAtIndex: i] retain];
-        // We do not download thumbnails right now. This may take
-        // too much time. Instead they are loaded on demand when
-        // the item is displayed and the user wants it.
-        image->image = nil;
-        [files addObject: image];
+	NSString *fname = [ar objectAtIndex: i];
+	NSImage *icon = [self getThumbnail: camera->camera
+                                   forFile: fname
+                                    atPath: camera->path];
+	SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
+                                                             fileName: fname
+                                                         andContainer: iconView];
+        [camera->files addObject: image];
         [image release];
     }
     [ar release];
@@ -559,11 +562,11 @@ BOOL loadingImages = NO;
     NSOutlineView *ol = [notification object];
     int row = [ol selectedRow];
     OutlineItem * camera = [ol itemAtRow: row];
-    if (nil != files) {
-        [files release];
-	files = nil;
-    }
-    if (nil != camera) {
+    unsigned count = 0;
+
+    [iconView removeAllIcons];
+    if ((nil != camera) && (nil == camera->files)) {
+        camera->files = [NSMutableArray new];
         [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
         loadingImages = YES;
@@ -572,59 +575,34 @@ BOOL loadingImages = NO;
         [NSThread detachNewThreadSelector: @selector(loadImagesThread:)
                                  toTarget: self
                                withObject: camera];
-	while (loadingImages && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+        while (loadingImages && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
+            unsigned current = [camera->files count];
+	    if ((current - count) >= 10) {
+		unsigned i;
+                for (i = count; i < current; i++) {
+                    CREATE_AUTORELEASE_POOL(pool);
+                    SnapshotIcon *icon = [camera->files objectAtIndex: i];
+                    [iconView addIcon: icon];
+                    RELEASE (pool);
+                }
+                [iconView tile];
+
+		count = current;
+            }
+        }
 
 	[self stopProgressAnimation];
     }
 
-    [fileList reloadData];
-}
-
-
-//
-// table view delegate methods
-//
-- (int) numberOfRowsInTableView: (NSTableView *) tableView
-{
-    if (nil != files) {
-        return [files count];
+    unsigned i;
+    for (i = count; i < [camera->files count]; i++) {
+        CREATE_AUTORELEASE_POOL(pool);
+        SnapshotIcon *icon = [camera->files objectAtIndex: i];
+        [iconView addIcon: icon];
+        RELEASE (pool);
     }
-    return 0;
+    [iconView tile];
 }
 
-- (id)           tableView: (NSTableView *) tableView
- objectValueForTableColumn: (NSTableColumn *) tableColumn
-                       row: (int) row
-{
-    if (nil != files) {
-        TableItem *image = [files objectAtIndex: row];
-	return image->file;
-    }
-    return nil;
-}
-
-
-- (void) tableView: (NSTableView *) tableView
-   willDisplayCell: (id) aCell
-    forTableColumn: (NSTableColumn *) tableColumn
-               row: (int) row
-{
-    TableItem *image = [files objectAtIndex: row];
-    if (nil == image->image) {
-        int idx = [cameraTree selectedRow];
-        OutlineItem * camera = [cameraTree itemAtRow: idx];
-        image->image = [self getThumbnail: camera->camera
-                                  forFile: image->file
-                                   atPath: camera->path];
-    }
-    if (image->image) {
-        [aCell setImage: image->image];
-    }
-}
-
-- (void) tableViewSelectionDidChange: (NSNotification*) notification
-{
-    [menu update];
-}
 
 @end

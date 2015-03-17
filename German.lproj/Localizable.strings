@@ -27,5 +27,9 @@ add comments above this one
 "Set download destination" = "Speicherort ausw\U00e4hle";
 
 "Loading image information from camera." = "Lade Informationen von der Kamera.";
-"Abort Download" = "\U00dcbertragung abbrechen";
-"Cameras" = "Kameras";
+
+"No image selected" = "Kein Bild ausgew\U00e4hlt";
+
+"%d images selected" = "%d Bilder ausgew\U00e4hlt";
+
+"Properties Inspector" = "Eigenschafteninspektor";

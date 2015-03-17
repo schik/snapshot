@@ -1,5 +1,5 @@
 /*
- *    SnapshotController.h
+ *    SnapshotIconView.h
  *
  *    Copyright (c) 2015
  *
@@ -20,36 +20,41 @@
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef SNAPSHOTCONTROLLER_H_INC
-#define SNAPSHOTCONTROLLER_H_INC
+#ifndef SNAPSHOTICONVIEW_H_INC
+#define SNAPSHOTICONVIEW_H_INC
 
+#include <Foundation/Foundation.h>
+#include <AppKit/NSView.h>
 
-#include <AppKit/AppKit.h>
+@class SnapshotIcon;
 
-#include <CameraKit/GSGPhoto2.h>
+typedef enum SISelectionMask {
+    SISingleSelectionMask = 0,
+    SIMultipleSelectionMask = 1,
+    SICreatingSelectionMask = 2
+} SISelectionMask;
 
-#include "Inspector.h"
-
-@class SnapshotIconView;
-
-@interface SnapshotController : NSWindowController
+@interface SnapshotIconView : NSView
 {
-    id cameraTree;
-    SnapshotIconView *iconView;
-    id statusText;
-    id progress;
-    id menu;
-    id abort;
-    id window;
-    GSGPhoto2 *photo2;
-    Inspector *inspector;
+    NSMutableArray *icons;
+    SISelectionMask selectionMask;
 }
 
-- (void) refreshClicked: (id)sender;
-- (void) showInspector: (id)sender;
-- (void) showPropertyInspector: (id)sender;
+- (void) setSelectionMask: (SISelectionMask)mask;
+- (SISelectionMask) selectionMask;
+
+- (void) addIcon: (SnapshotIcon *)icon;
+- (void) removeAllIcons;
+- (NSArray *) selectedIcons;
+
+- (void) unselectOtherImages: (id)anIcon;
+- (void) selectionDidChange;
+
+- (void) tile;
+
+- (void) mouseUp: (NSEvent *)theEvent;
+- (void) mouseDown: (NSEvent *)theEvent;
 
 @end
 
-
-#endif
+#endif // SNAPSHOTICONVIEW_H_INC

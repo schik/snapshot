@@ -28,6 +28,7 @@ const int TAG_REFRESH = 2;
 const int TAG_SAVESEL = 3;
 const int TAG_DELETE = 4;
 
+const double THUMBNAIL_WIDTH = 120.;
 const double ROW_HEIGHT_IMAGE = 64.;
 
 NSString *LAST_SAVE_DIR = @"LastSaveDir";
