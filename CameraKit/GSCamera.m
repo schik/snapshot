@@ -162,4 +162,28 @@
   return image;
 }
 
+- (NSDictionary *) infoForFile: (NSString *)file inPath: (NSString *)path
+{
+  NSMutableDictionary *dict = [[NSMutableDictionary new] autorelease];
+  CameraFileInfo info;
+  int result = gp_camera_file_get_info (theCamera, [path cString],
+                  [file cString], &info, NULL);
+  if (result >= 0) {
+      if (info.file.fields & GP_FILE_INFO_SIZE) {
+	  [dict setObject: [NSNumber numberWithInteger: info.file.size] forKey: @"size"];
+      }
+      if (info.file.fields & GP_FILE_INFO_WIDTH) {
+	  [dict setObject: [NSNumber numberWithInteger: info.file.width] forKey: @"width"];
+      }
+      if (info.file.fields & GP_FILE_INFO_HEIGHT) {
+	  [dict setObject: [NSNumber numberWithInteger: info.file.height] forKey: @"height"];
+      }
+      if (info.file.fields & GP_FILE_INFO_MTIME) {
+	  [dict setObject: [NSDate dateWithTimeIntervalSince1970: info.file.mtime] forKey: @"mtime"];
+      }
+  } 
+	
+  return [[NSDictionary alloc] initWithDictionary: dict];
+}
+
 @end
