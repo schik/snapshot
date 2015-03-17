@@ -32,6 +32,7 @@
 
     id exposureField;
     id sizeField;
+    id imageSizeField;
   
     id iconView;
     id titleField;

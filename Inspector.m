@@ -89,16 +89,6 @@ static NSString *nibName = @"InspectorWin";
     }
 }
 
-- (void) setCurrentSelection: (NSArray *)selection
-{
-    if (selection) {
-//    ASSIGN (currentPaths, selection);
-        if (currentInspector) {
-//      [currentInspector activateForPaths: currentPaths];
-        }
-    }
-}
-
 - (IBAction) activateInspector: (id)sender
 {
     id insp = [inspectors objectAtIndex: [sender indexOfSelectedItem]];
@@ -108,10 +98,6 @@ static NSString *nibName = @"InspectorWin";
         [window setTitle: [insp winname]];
         [inspBox setContentView: [insp inspView]];	 
     }
-  
-//  if (currentPaths) {
-//	  [insp activateForPaths: currentPaths];
-//  }
 }
 
 - (void) showAttributes

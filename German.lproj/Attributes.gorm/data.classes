@@ -10,8 +10,8 @@
 	    iconView,
 	    titleField,
 	    sizeField,
-	    exposureField,
-	    dateField
+	    dateField,
+	    imageSizeField
 	);
 	Super = NSObject;
     };

@@ -94,6 +94,7 @@ static NSString *nibName = @"Attributes";
 
     [titleField setStringValue: _(@"No image selected")];
     [exposureField setStringValue: @""];
+    [imageSizeField setStringValue: @""];
     [sizeField setStringValue: @""];
     [dateField setStringValue: @""];
 }
@@ -111,6 +112,7 @@ static NSString *nibName = @"Attributes";
         [titleField setStringValue:
 	    [NSString stringWithFormat: _(@"%d Images selected"), [images count]]];
         [exposureField setStringValue: @""];
+        [imageSizeField setStringValue: @""];
         [sizeField setStringValue: @""];
         [dateField setStringValue: @""];
 	return;
@@ -121,8 +123,10 @@ static NSString *nibName = @"Attributes";
 
     [titleField setStringValue: [snIcon fileName]];
     [exposureField setStringValue: @""];
-    [sizeField setStringValue: @""];
-    [dateField setStringValue: @""];
+    [imageSizeField setStringValue: [NSString stringWithFormat: @"%dx%d",
+	[snIcon width], [snIcon height]]];
+    [sizeField setStringValue: [NSString stringWithFormat: @"%d", [snIcon fileSize]]];
+    [dateField setStringValue: [snIcon date]];
 }
 
 

@@ -40,8 +40,6 @@
 
 - (void)activate;
 
-- (void)setCurrentSelection:(NSArray *)selection;
-
 - (IBAction) activateInspector: (id)sender;
 
 - (void) showAttributes;
