@@ -29,8 +29,17 @@
 	    progress,
 	    statusText,
 	    menu,
-	    abort
+	    abort,
+	    iconView,
+	    newOutlet
 	);
-	Super = NSObject;
+	Super = NSWindowController;
+    };
+    SnapshotIconView = {
+	Actions = (
+	);
+	Outlets = (
+	);
+	Super = NSView;
     };
 }

@@ -1,0 +1,45 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    FirstResponder = {
+	Actions = (
+	    "abortClicked:",
+	    "deleteSelectedClicked:",
+	    "refreshClicked:",
+	    "saveSelectedClicked:"
+	);
+	Super = NSObject;
+    };
+    Snapshot = {
+	Actions = (
+	);
+	Outlets = (
+	);
+	Super = NSApplication;
+    };
+    SnapshotController = {
+	Actions = (
+	    "refreshClicked:",
+	    "saveSelectedClicked:",
+	    "abortClicked:",
+	    "deleteSelectedClicked:"
+	);
+	Outlets = (
+	    cameraTree,
+	    fileList,
+	    progress,
+	    statusText,
+	    menu,
+	    abort,
+	    iconView,
+	    newOutlet
+	);
+	Super = NSWindowController;
+    };
+    SnapshotIconView = {
+	Actions = (
+	);
+	Outlets = (
+	);
+	Super = NSView;
+    };
+}
