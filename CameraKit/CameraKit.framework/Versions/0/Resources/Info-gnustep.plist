@@ -1,9 +1,0 @@
-{
-  NOTE = "Automatically generated, do not edit!";
-  NSExecutable = "CameraKit";
-  NSMainNibFile = "";
-  NSPrincipalClass = "CameraKit";
-  Classes = 
-("GSGPhoto2", "GSCamera")
-  ;
-}
