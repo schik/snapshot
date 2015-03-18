@@ -239,7 +239,13 @@ static NSDateFormatter* dateFormatter = nil;
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect: shadowRect
                                                          xRadius: 0.5
                                                          yRadius: 0.5];
+    [path setLineWidth: 8.0];
+    [[NSColor colorWithCalibratedRed: 0.17 green: 0.17 blue: 0.17 alpha: .1] set];
+    [path stroke];
     [path setLineWidth: 6.0];
+    [[NSColor colorWithCalibratedRed: 0.17 green: 0.17 blue: 0.17 alpha: .5] set];
+    [path stroke];
+    [path setLineWidth: 4.0];
     [[NSColor colorWithCalibratedRed: 0.17 green: 0.17 blue: 0.17 alpha: 1.] set];
     [path stroke];
 
