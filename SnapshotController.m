@@ -142,9 +142,32 @@ static NSString *saveAction = @"Save";
     abortDownload = NO;
 
     // Start the worker
+    NSRunLoop *theRL = [NSRunLoop currentRunLoop];
+
     [NSThread detachNewThreadSelector: @selector(processImages:)
                              toTarget: self
                            withObject: threadParams];
+
+    while (downloadRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+
+    // Update the UI
+    if ([action isEqualToString: deleteAction]) {
+        [iconView removeAllIcons];
+        unsigned i;
+        for (i = 0; i < [camera->files count]; i++) {
+            CREATE_AUTORELEASE_POOL(pool);
+            SnapshotIcon *icon = [camera->files objectAtIndex: i];
+            [iconView addIcon: icon];
+            RELEASE (pool);
+        }
+        [iconView tile];
+    }
+
+    [statusText setStringValue: @""];
+    [progress setHidden: YES];
+    [progress setDoubleValue: 0.];
+    [abort setHidden: YES];
+    [menu update];
 
     [threadParams release];
 }
@@ -333,25 +356,6 @@ static NSString *saveAction = @"Save";
         }
 	[progress setDoubleValue: ++counter];
     }
-
-    // Update the UI
-    if ([action isEqualToString: deleteAction]) {
-        [iconView removeAllIcons];
-        unsigned i;
-        for (i = 0; i < [camera->files count]; i++) {
-            CREATE_AUTORELEASE_POOL(pool);
-            SnapshotIcon *icon = [camera->files objectAtIndex: i];
-            [iconView addIcon: icon];
-            RELEASE (pool);
-        }
-        [iconView tile];
-    }
-
-    [statusText setStringValue: @""];
-    [progress setHidden: YES];
-    [progress setDoubleValue: 0.];
-    [abort setHidden: YES];
-    [menu update];
 
     [pool release];
     downloadRunning = NO;
