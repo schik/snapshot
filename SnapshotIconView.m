@@ -126,7 +126,7 @@ unsigned iconWidth = 0.;
     }
 }
 
-- (void)tile
+- (void) tile
 {
     NSRect rect = [[self superview] frame];
 
@@ -147,7 +147,7 @@ unsigned iconWidth = 0.;
     
         xpos += iconWidth + MARGIN;
     
-        if (xpos > (rect.size.width - iconWidth)) {
+        if (xpos > (rect.size.width - (iconWidth + MARGIN))) {
             xpos = 0;
             ypos -= (iconHeight + MARGIN);
         }
@@ -172,8 +172,6 @@ unsigned iconWidth = 0.;
 
 - (void)drawRect:(NSRect)rect
 {
-//    [[NSColor whiteColor] setFill];
-//    NSRectFill(rect);
     if ([self superview]) {
         [[(NSScrollView *)[self superview] backgroundColor] setFill];
         NSRectFill(rect);
