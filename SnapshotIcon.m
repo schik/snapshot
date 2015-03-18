@@ -234,12 +234,29 @@ static NSDateFormatter* dateFormatter = nil;
 
 - (void)drawRect: (NSRect)rect
 {
+    NSRect shadowRect = NSMakeRect(iconBounds.origin.x + 3, iconBounds.origin.y - 3,
+            iconBounds.size.width, iconBounds.size.height);
+    NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect: shadowRect
+                                                         xRadius: 0.5
+                                                         yRadius: 0.5];
+    [path setLineWidth: 6.0];
+    [[NSColor colorWithCalibratedRed: 0.17 green: 0.17 blue: 0.17 alpha: 1.] set];
+    [path stroke];
+
     if (isSelected) {
-	[[NSColor selectedControlColor] set];
-	NSRectFill(rect);
+        path = [NSBezierPath bezierPathWithRoundedRect: iconBounds
+                                               xRadius: 0.5
+                                               yRadius: 0.5];
+        [path setLineWidth: 6.0];
+        [[NSColor colorWithCalibratedRed: 0.13 green: 0.87 blue: 1. alpha: 1.] set];
+        [path stroke];
     } else {
-	[[NSColor windowBackgroundColor] set];
-	NSRectFill(rect);
+        path = [NSBezierPath bezierPathWithRoundedRect: iconBounds
+                                               xRadius: 0.5
+                                               yRadius: 0.5];
+        [path setLineWidth: 6.0];
+        [[NSColor colorWithCalibratedRed: 0.67 green: 0.67 blue: 0.67 alpha: 1.] set];
+        [path stroke];
     }
     [icon compositeToPoint: iconPoint operation: NSCompositeSourceOver];
 }

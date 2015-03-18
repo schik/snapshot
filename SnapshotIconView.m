@@ -171,7 +171,13 @@ unsigned iconWidth = 0.;
 }
 
 - (void)drawRect:(NSRect)rect
-{	
+{
+//    [[NSColor whiteColor] setFill];
+//    NSRectFill(rect);
+    if ([self superview]) {
+        [[(NSScrollView *)[self superview] backgroundColor] setFill];
+        NSRectFill(rect);
+    }
     [super drawRect: rect];
 }
 
