@@ -126,12 +126,12 @@ static NSString *nibName = @"InspectorWin";
     [[NSUserDefaults standardUserDefaults] setObject: index 
                                               forKey: @"last_active_inspector"];
     [[self attributes] updateDefaults];
-    [window saveFrameUsingName: @"InspectorsWin"];
+    [window setFrameAutosaveName: @"InspectorsWindow"];
+    [window setFrameUsingName: @"InspectorsWindow"];
 }
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    [window saveFrameUsingName: @"InspectorsWin"];
     return YES;
 }
 
