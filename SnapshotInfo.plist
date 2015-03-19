@@ -2,10 +2,10 @@
     ApplicationDescription = "An application to transfer photos from a digital camera.";
     ApplicationIcon = "";
     ApplicationName = Snapshot;
-    ApplicationRelease = "0.1.0";
+    ApplicationRelease = "0.1.1";
     Authors = ("Andreas Schik <andreas@schik.de>");
     Copyright = "Copyright (C) 2015 by Andreas Schik";
     CopyrightDescription = "Released under GPL";
-    FullVersionID = "0.1.0";
+    FullVersionID = "0.1.1";
     URL = "http://www.andreasschik.de";
 }
