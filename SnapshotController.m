@@ -31,11 +31,27 @@
 #include "Constants.h"
 
 
+// If set to YES a camera search is in progress
 static BOOL refreshRunning = NO;
-static BOOL downloadRunning = NO;
-static BOOL abortDownload = NO;
+
+// Idicators for the currently performed action
 static NSString *deleteAction = @"Delete";
 static NSString *saveAction = @"Save";
+
+// If set to YES an image download/deletion is in progress
+static BOOL downloadRunning = NO;
+// If set to YES the abort button was pressed
+static BOOL abortDownload = NO;
+// The name of the image that is currently downloaded
+static NSString *downloadImage = @"";
+// The counter for downloaded images
+static int downloadCounter = 0;
+
+// If set to YES subfolder information is loaded
+BOOL loadingFolders = NO;
+// If set to YES the thumbnails in the selected folder are loaded
+BOOL loadingThumbnails = NO;
+
 
 /**
  * This class represents the items stored in the OutlineView
@@ -138,8 +154,18 @@ static NSString *saveAction = @"Save";
     [abort setHidden: NO];
     [abort display];
 
+    downloadImage = @"";
+    downloadCounter = 0;
     downloadRunning = YES;
     abortDownload = NO;
+
+    NSString *statusString;
+
+    if ([action isEqualToString: saveAction]) {
+        statusString = _(@"Downloading image %@");
+    } else {
+        statusString = _(@"Deleting image %@");
+    }
 
     // Start the worker
     NSRunLoop *theRL = [NSRunLoop currentRunLoop];
@@ -148,7 +174,10 @@ static NSString *saveAction = @"Save";
                              toTarget: self
                            withObject: threadParams];
 
-    while (downloadRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+    while (downloadRunning && [theRL runMode: NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]) {
+        [statusText setStringValue: [NSString stringWithFormat: statusString, downloadImage]];
+	[progress setDoubleValue: downloadCounter];
+    }
 
     // Update the UI
     if ([action isEqualToString: deleteAction]) {
@@ -334,19 +363,14 @@ static NSString *saveAction = @"Save";
     NSArray *images = [params objectForKey: IMAGES];
     NSString *action = [params objectForKey: ACTION];
     NSString *downloadPath = nil;
-    int counter = 0;
     SnapshotIcon *image;
-    NSString *statusString;
 
     if ([action isEqualToString: saveAction]) {
         downloadPath = [params objectForKey: DOWNLOAD_PATH];
-        statusString = _(@"Downloading image %@");
-    } else {
-        statusString = _(@"Deleting image %@");
     }
     NSEnumerator *e = [images objectEnumerator];
     while (!abortDownload && (image = [e nextObject]) != nil) {
-        [statusText setStringValue: [NSString stringWithFormat: statusString, [image fileName]]];
+	downloadImage = [image fileName];
         if ([action isEqualToString: saveAction]) {
             [camera->camera getFile: [image fileName] from: camera->path to: downloadPath];
         } else {
@@ -354,7 +378,7 @@ static NSString *saveAction = @"Save";
             // Remove the object from our data cache
 	    [camera->files removeObject: image];
         }
-	[progress setDoubleValue: ++counter];
+	downloadCounter++;
     }
 
     [pool release];
@@ -440,7 +464,6 @@ static NSString *saveAction = @"Save";
 //
 // outline view delegate methods
 //
-BOOL loaderRunning = NO;
 
 /**
  * Thread method to refresh the camera folder list.
@@ -451,7 +474,7 @@ BOOL loaderRunning = NO;
     OutlineItem *camera = (OutlineItem *)anObject;
 
     camera->subFolders = [camera->camera foldersInPath: camera->path];
-    loaderRunning = NO;
+    loadingFolders = NO;
     [pool release];
     [NSThread exit];
 }
@@ -481,13 +504,13 @@ BOOL loaderRunning = NO;
     if (nil != camera) {
         [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
-        loaderRunning = YES;
+        loadingFolders = YES;
 	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
 
         [NSThread detachNewThreadSelector: @selector(loadFoldersThread:)
                                  toTarget: self
                                withObject: camera];
-	while (loaderRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+	while (loadingFolders && [theRL runMode: NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]);
 
 	[self stopProgressAnimation];
     }
@@ -532,7 +555,6 @@ BOOL loaderRunning = NO;
     return nil;
 }
 
-BOOL loadingImages = NO;
 
 /**
  * Thread method to refresh the image list.
@@ -563,7 +585,7 @@ BOOL loadingImages = NO;
     [ar release];
     [dateFormatter release];
 
-    loadingImages = NO;
+    loadingThumbnails = NO;
     [pool release];
     [NSThread exit];
 }
@@ -578,15 +600,15 @@ BOOL loadingImages = NO;
     [iconView removeAllIcons];
     if ((nil != camera) && (nil == camera->files)) {
         camera->files = [NSMutableArray new];
-        [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
+        [self startProgressAnimationWithStatus: _(@"Loading image information from camera")];
 
-        loadingImages = YES;
+        loadingThumbnails = YES;
 	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
 
         [NSThread detachNewThreadSelector: @selector(loadImagesThread:)
                                  toTarget: self
                                withObject: camera];
-        while (loadingImages && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
+        while (loadingThumbnails && [theRL runMode: NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]) {
             unsigned current = [camera->files count];
 	    if ((current - count) >= 10) {
 		unsigned i;
