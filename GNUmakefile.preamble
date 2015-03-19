@@ -5,11 +5,8 @@ ADDITIONAL_OBJCFLAGS += -Wall
 # Additional flags to pass to the C compiler
 ADDITIONAL_CFLAGS += -Wall
 
-ifneq ($(gphoto2_include),)
-ADDITIONAL_INCLUDE_DIRS += -I$(gphoto2_include)
-endif
+ADDITIONAL_INCLUDE_DIRS += `pkg-config --cflags libgphoto2`
 
-Snapshot_GUI_LIBS += -lCameraKit -lgphoto2
+Snapshot_GUI_LIBS += -lCameraKit 
+Snapshot_GUI_LIBS += `pkg-config --libs libgphoto2`
 
-ADDITIONAL_LIB_DIRS += \
-	-L$(GNUSTEP_LOCAL_ROOT)/Library/Frameworks/CameraKit.framework/Versions/Current
