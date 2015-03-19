@@ -25,9 +25,9 @@ o You must also have libgphoto2 and its header files on your system. But this
 o To build Snapshot.app simply do the following:
 	make
 
-  Should you get error messages during compilation about the gphoto2 header
-  files not being found try this:
-	make gphoto2_include=<path_to_the_gphoto2_headers>
+  Note, that the GNUmakefile uses pkg-config to find the compiler and linker
+  flags for libgphoto2. If that does not work for you, you may want to adjust
+  these settings.
 
 o To install Snapshot.app in your global GNUstep directory do:
 	make install
