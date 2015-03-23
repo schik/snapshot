@@ -34,8 +34,23 @@
 #define MULTIPLE 1
 
 static NSString *nibName = @"Attributes";
+static NSDateFormatter* dateFormatter = nil;
+static NSDateFormatter* timeFormatter = nil;
 
 @implementation Attributes
+
++ (void)initialize
+{
+    static BOOL initialized = NO;
+
+    if (initialized == NO) {
+        dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateStyle: NSDateFormatterLongStyle];
+        timeFormatter = [[NSDateFormatter alloc] init];
+        [timeFormatter setTimeStyle: NSDateFormatterMediumStyle];
+        initialized = YES;
+    }
+}
 
 - (void) dealloc
 {
@@ -101,6 +116,8 @@ static NSString *nibName = @"Attributes";
 
 - (void) setImages: (NSArray *)images
 {
+//    iconInfo = nil;
+
     if (!images || [images count] == 0) {
         [self removeImages];
         return;
@@ -119,19 +136,54 @@ static NSString *nibName = @"Attributes";
     }
 
     SnapshotIcon *snIcon = [images objectAtIndex: 0];
+
+//    NSDictionary *iconInfo = [snIcon iconInfo];
+
     [iconView setImage: [snIcon icon]];
 
     [titleField setStringValue: [snIcon fileName]];
-    [exposureField setStringValue: @""];
+    
+    [exposureField setStringValue: [NSString stringWithFormat: @"%@, %@",
+	[snIcon fNumber], [snIcon exposureTime]]];
     [imageSizeField setStringValue: [NSString stringWithFormat: @"%dx%d",
 	[snIcon width], [snIcon height]]];
-    [sizeField setStringValue: [NSString stringWithFormat: @"%d", [snIcon fileSize]]];
-    [dateField setStringValue: [snIcon date]];
+    [sizeField setStringValue: [NSString stringWithFormat: @"%d kB", [snIcon fileSize]]];
+    [dateField setStringValue: [dateFormatter stringFromDate: [snIcon date]]];
+    [timeField setStringValue: [timeFormatter stringFromDate: [snIcon date]]];
+
+#if 0
+    [exifInfoTable reloadData];
+#endif
 }
 
 
 - (void)updateDefaults
 {
 }
+
+#if 0
+- (NSInteger) numberOfRowsInTableView: (NSTableView *)aTableView
+{
+    if (nil == iconInfo) {
+	return 0;
+    }
+    return [[iconInfo allKeys] count];
+}
+
+- (id) tableView: (NSTableView *)aTableView
+    objectValueForTableColumn: (NSTableColumn *)aTableColumn
+                          row: (NSInteger)rowIndex
+{
+    NSString *identifier = [aTableColumn identifier];
+    if ([identifier isEqual: @"tag"]) {
+	return [[iconInfo allKeys] objectAtIndex: rowIndex];
+    }
+    if ([identifier isEqual: @"value"]) {
+	NSObject *key = [[iconInfo allKeys] objectAtIndex: rowIndex];
+	return [iconInfo objectForKey: key];
+    }
+    return nil;
+}
+#endif
 
 @end

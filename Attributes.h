@@ -29,6 +29,7 @@
     id topBox;
 
     id dateField;
+    id timeField;
 
     id exposureField;
     id sizeField;
@@ -37,7 +38,9 @@
     id iconView;
     id titleField;
 
-    NSDictionary *attributes;
+//    id exifInfoTable;
+
+//    NSDictionary *iconInfo;
     id inspector;
 }
 

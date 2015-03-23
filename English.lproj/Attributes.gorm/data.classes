@@ -11,7 +11,9 @@
 	    titleField,
 	    sizeField,
 	    dateField,
-	    imageSizeField
+	    imageSizeField,
+	    timeField,
+	    exposureField
 	);
 	Super = NSObject;
     };
