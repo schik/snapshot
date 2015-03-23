@@ -31,9 +31,9 @@ CameraKit_OBJC_FILES = \
 
 CameraKit_RESOURCE_FILES =
 
-ADDITIONAL_INCLUDE_DIRS = -I/usr/include/gphoto2
+ADDITIONAL_INCLUDE_DIRS = `pkg-config --cflags libgphoto2`
 ADDITIONAL_OBJCFLAGS = -Wall
-ADDITIONAL_LDFLAGS = -lgphoto2
+ADDITIONAL_LDFLAGS = `pkg-config --libs libgphoto2`
 
 -include GNUmakefile.preamble
 
