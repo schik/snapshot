@@ -1,3 +1,5 @@
+#include <exif-data.h>
+
 #include "GSCamera.h"
 
 @implementation GSCamera
@@ -162,27 +164,109 @@
   return image;
 }
 
+- (NSDictionary *) exifdataForFile: (NSString *)file inPath: (NSString *)path
+{
+  NSMutableDictionary *dict = [[NSMutableDictionary new] autorelease];
+  CameraFile *cfile;
+  gp_file_new(&cfile);
+  int result = gp_camera_file_get (theCamera, [path cString],
+                  [file cString], GP_FILE_TYPE_EXIF, cfile, NULL);
+
+  if (result >= 0) {
+      const char *data;
+      unsigned long size;
+      gp_file_get_data_and_size(cfile, &data, &size);
+      ExifData *edata = exif_data_new_from_data((const unsigned char *)data, size);
+      unsigned int i;
+      unsigned int j;
+
+      if (edata) {
+	for (i = 0; i < EXIF_IFD_COUNT; i++) {
+          if (edata->ifd[i]) {
+            for (j = 0; j < edata->ifd[i]->count; j++) {
+              ExifEntry *ee = edata->ifd[i]->entries[j];
+
+	      NSString *name = [NSString stringWithFormat: @"%s",
+		       exif_tag_get_name_in_ifd(ee->tag, exif_entry_get_ifd(ee))];
+
+              char v[1024];
+	      exif_entry_get_value(ee, v, sizeof(v));
+	      NSString *value = [NSString stringWithFormat: @"%s", v];
+	      [dict setObject: value forKey: name];
+            }
+          }
+	}
+        exif_data_free(edata);
+      }
+  }	
+  gp_file_unref(cfile);
+  return [[NSDictionary alloc] initWithDictionary: dict];
+}
+
+
 - (NSDictionary *) infoForFile: (NSString *)file inPath: (NSString *)path
 {
   NSMutableDictionary *dict = [[NSMutableDictionary new] autorelease];
+  CameraFile *cfile;
+  gp_file_new(&cfile);
+  int result = gp_camera_file_get (theCamera, [path cString],
+                  [file cString], GP_FILE_TYPE_EXIF, cfile, NULL);
+
+  if (result >= 0) {
+      const char *data;
+      unsigned long size;
+      gp_file_get_data_and_size(cfile, &data, &size);
+      ExifData *edata = exif_data_new_from_data((const unsigned char *)data, size);
+      unsigned int i;
+      unsigned int j;
+
+      if (edata) {
+	for (i = 0; i < EXIF_IFD_COUNT; i++) {
+          if (edata->ifd[i]) {
+            for (j = 0; j < edata->ifd[i]->count; j++) {
+              char v[1024];
+              ExifEntry *ee = edata->ifd[i]->entries[j];
+
+	      exif_entry_get_value(ee, v, sizeof(v));
+	      NSString *value = [NSString stringWithFormat: @"%s", v];
+
+              if (ee->tag == EXIF_TAG_ORIENTATION) {
+	        [dict setObject: value forKey: @"orientation"];
+              }
+              if (ee->tag == EXIF_TAG_PIXEL_X_DIMENSION) {
+	        [dict setObject: value forKey: @"width"];
+              }
+              if (ee->tag == EXIF_TAG_PIXEL_Y_DIMENSION) {
+	        [dict setObject: value forKey: @"height"];
+              }
+              if (ee->tag == EXIF_TAG_EXPOSURE_TIME) {
+	        [dict setObject: value forKey: @"exptime"];
+              }
+              if (ee->tag == EXIF_TAG_FNUMBER) {
+	        [dict setObject: value forKey: @"fnumber"];
+              }
+              if (ee->tag == EXIF_TAG_FLASH) {
+	        [dict setObject: value forKey: @"flash"];
+              }
+            }
+          }
+	}
+        exif_data_free(edata);
+      }
+  }	
+
   CameraFileInfo info;
-  int result = gp_camera_file_get_info (theCamera, [path cString],
+  result = gp_camera_file_get_info (theCamera, [path cString],
                   [file cString], &info, NULL);
   if (result >= 0) {
       if (info.file.fields & GP_FILE_INFO_SIZE) {
 	  [dict setObject: [NSNumber numberWithInteger: info.file.size] forKey: @"size"];
       }
-      if (info.file.fields & GP_FILE_INFO_WIDTH) {
-	  [dict setObject: [NSNumber numberWithInteger: info.file.width] forKey: @"width"];
-      }
-      if (info.file.fields & GP_FILE_INFO_HEIGHT) {
-	  [dict setObject: [NSNumber numberWithInteger: info.file.height] forKey: @"height"];
-      }
       if (info.file.fields & GP_FILE_INFO_MTIME) {
 	  [dict setObject: [NSDate dateWithTimeIntervalSince1970: info.file.mtime] forKey: @"mtime"];
       }
   } 
-	
+  gp_file_unref(cfile);
   return [[NSDictionary alloc] initWithDictionary: dict];
 }
 
