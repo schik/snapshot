@@ -25,7 +25,6 @@
 #include "SnapshotIcon.h"
 #include "SnapshotIconView.h"
 
-static NSDateFormatter* dateFormatter = nil;
 
 @implementation SnapshotIcon
 
@@ -36,18 +35,6 @@ static NSDateFormatter* dateFormatter = nil;
     RELEASE(iconInfo);
 
     [super dealloc];
-}
-
-+ (void)initialize
-{
-    static BOOL initialized = NO;
-
-    if (initialized == NO) {
-        dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateStyle: NSDateFormatterLongStyle];
-        [dateFormatter setTimeStyle: NSDateFormatterMediumStyle];
-        initialized = YES;
-    }
 }
 
 - (id) initWithIconImage: (NSImage *) img
@@ -78,6 +65,11 @@ static NSDateFormatter* dateFormatter = nil;
     if (nil != info) {
         ASSIGN(iconInfo, info);
     }
+}
+
+- (NSDictionary *) iconInfo
+{
+    return iconInfo;
 }
 
 - (void) select
@@ -140,12 +132,21 @@ static NSDateFormatter* dateFormatter = nil;
     return 0;
 }
 
-- (NSString *) date;
+- (NSDate *) date;
 {
     if (nil != iconInfo) {
-        return [dateFormatter stringFromDate: [iconInfo objectForKey: @"mtime"]];
+        return [iconInfo objectForKey: @"mtime"];
     }
-    return @"";
+    return [NSDate dateWithTimeIntervalSince1970:0];
+}
+
+- (NSString *) exposureTime {
+    return [iconInfo objectForKey: @"exptime"];
+}
+
+- (NSString *) fNumber
+{
+    return [iconInfo objectForKey: @"fnumber"];
 }
 
 - (NSSize) iconSize

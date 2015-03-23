@@ -574,6 +574,8 @@ BOOL loadingThumbnails = NO;
 	NSImage *icon = [self getThumbnail: camera->camera
                                    forFile: fname
                                     atPath: camera->path];
+//        NSDictionary *info = [camera->camera exifdataForFile: fname inPath: camera->path];
+//    NSLog([exif description]);
         NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
 	SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
                                                              fileName: fname

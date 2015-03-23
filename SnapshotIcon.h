@@ -63,11 +63,14 @@
 - (NSImage *) icon;
 
 - (void) setIconInfo: (NSDictionary *)info;
+- (NSDictionary *) iconInfo;
 
 - (NSUInteger) fileSize;
 - (NSUInteger) height;
 - (NSUInteger) width;
-- (NSString *) date;
+- (NSDate *) date;
+- (NSString *) exposureTime;
+- (NSString *) fNumber;
 
 @end
 
