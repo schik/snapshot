@@ -45,8 +45,8 @@
   for (i = 0; i < count; i++)
     {
       Camera *camera;
-      char *name;
-      char *value;
+      const char *name;
+      const char *value;
       CameraAbilitiesList *abilities_list = NULL;
       CameraAbilities a;
       GPPortInfo info;
@@ -72,8 +72,8 @@
       gp_port_info_list_get_info (il, p, &info);
       gp_camera_set_port_info (camera, info);
 
-      gp_setting_set ("campics", "model", name);
-      gp_setting_set ("campics", "port", value);
+      gp_setting_set ("campics", "model", (char *)name);
+      gp_setting_set ("campics", "port", (char *)value);
 
       gp_port_info_list_free(il);
 
