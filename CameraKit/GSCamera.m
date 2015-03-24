@@ -161,7 +161,7 @@
   } 
 	
   gp_file_unref (cfile);
-  return image;
+  return [image autorelease];
 }
 
 - (NSDictionary *) exifdataForFile: (NSString *)file inPath: (NSString *)path
@@ -203,6 +203,13 @@
   return [[NSDictionary alloc] initWithDictionary: dict];
 }
 
+- (NSString *) getStringValue: (ExifEntry *) ee
+{
+    char v[1024];
+    exif_entry_get_value(ee, v, sizeof(v));
+    NSString *value = [NSString stringWithFormat: @"%s", v];
+    return value;
+}
 
 - (NSDictionary *) infoForFile: (NSString *)file inPath: (NSString *)path
 {
@@ -217,40 +224,39 @@
       unsigned long size;
       gp_file_get_data_and_size(cfile, &data, &size);
       ExifData *edata = exif_data_new_from_data((const unsigned char *)data, size);
-      unsigned int i;
-      unsigned int j;
 
       if (edata) {
-	for (i = 0; i < EXIF_IFD_COUNT; i++) {
-          if (edata->ifd[i]) {
-            for (j = 0; j < edata->ifd[i]->count; j++) {
-              char v[1024];
-              ExifEntry *ee = edata->ifd[i]->entries[j];
-
-	      exif_entry_get_value(ee, v, sizeof(v));
-	      NSString *value = [NSString stringWithFormat: @"%s", v];
-
-              if (ee->tag == EXIF_TAG_ORIENTATION) {
-	        [dict setObject: value forKey: @"orientation"];
-              }
-              if (ee->tag == EXIF_TAG_PIXEL_X_DIMENSION) {
-	        [dict setObject: value forKey: @"width"];
-              }
-              if (ee->tag == EXIF_TAG_PIXEL_Y_DIMENSION) {
-	        [dict setObject: value forKey: @"height"];
-              }
-              if (ee->tag == EXIF_TAG_EXPOSURE_TIME) {
-	        [dict setObject: value forKey: @"exptime"];
-              }
-              if (ee->tag == EXIF_TAG_FNUMBER) {
-	        [dict setObject: value forKey: @"fnumber"];
-              }
-              if (ee->tag == EXIF_TAG_FLASH) {
-	        [dict setObject: value forKey: @"flash"];
-              }
-            }
-          }
-	}
+        ExifByteOrder byteOrder = exif_data_get_byte_order(edata);
+        ExifEntry *ee = exif_data_get_entry(edata, EXIF_TAG_ORIENTATION);
+        if (ee) {
+          int orientation = exif_get_short(ee->data, byteOrder);
+          [dict setObject: [NSNumber numberWithInt: orientation] forKey: @"orientation"];
+        }
+        ee = exif_data_get_entry(edata, EXIF_TAG_PIXEL_Y_DIMENSION);
+        if (ee) {
+          NSString *value = [self getStringValue: ee];
+          [dict setObject: value forKey: @"height"];
+        }
+        ee = exif_data_get_entry(edata, EXIF_TAG_PIXEL_X_DIMENSION);
+        if (ee) {
+          NSString *value = [self getStringValue: ee];
+          [dict setObject: value forKey: @"width"];
+        }
+        ee = exif_data_get_entry(edata, EXIF_TAG_EXPOSURE_TIME);
+        if (ee) {
+          NSString *value = [self getStringValue: ee];
+          [dict setObject: value forKey: @"exptime"];
+        }
+        ee = exif_data_get_entry(edata, EXIF_TAG_FNUMBER);
+        if (ee) {
+          NSString *value = [self getStringValue: ee];
+          [dict setObject: value forKey: @"fnumber"];
+        }
+        ee = exif_data_get_entry(edata, EXIF_TAG_FLASH);
+        if (ee) {
+          NSString *value = [self getStringValue: ee];
+          [dict setObject: value forKey: @"flash"];
+        }
         exif_data_free(edata);
       }
   }	
