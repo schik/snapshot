@@ -22,6 +22,7 @@
 
 #include <AppKit/AppKit.h>
 #include <math.h>
+#include "NSImage+Transform.h"
 #include "SnapshotIcon.h"
 #include "SnapshotIconView.h"
 
@@ -30,8 +31,8 @@
 
 - (void)dealloc
 {
-    RELEASE (icon);
-    RELEASE (fileName);
+    RELEASE(icon);
+    RELEASE(fileName);
     RELEASE(iconInfo);
 
     [super dealloc];
@@ -45,8 +46,8 @@
 
     if (self) {
 	container = cont;
-        ASSIGN (fileName, fname);
-        ASSIGN (icon, img);
+        ASSIGN(fileName, fname);
+        ASSIGN(icon, img);
         iconSize = [icon size];
         iconPoint = NSZeroPoint;
         iconBounds = NSMakeRect(0, 0, iconSize.width, iconSize.height);
@@ -171,6 +172,32 @@
     iconBounds = NSIntegralRect(iconBounds);
 
     [self setNeedsDisplay: YES]; 
+}
+
+- (void) fixOrientation
+{
+    NSNumber *num = [iconInfo objectForKey: @"orientation"];
+    if (nil != num) {
+	NSImage *newIcon = nil;
+        int o = [num intValue];
+        switch (o) {
+            case 3:
+                newIcon = [icon imageRotatedByDegrees: 180];
+                break;
+            case 6:
+                newIcon = [icon imageRotatedByDegrees: 270];
+                break;
+            case 8:
+                newIcon = [icon imageRotatedByDegrees: 90];
+                break;
+        }
+        if (nil != newIcon) {
+            ASSIGN(icon, newIcon);
+            iconSize = [icon size];
+            iconPoint = NSZeroPoint;
+            iconBounds = NSMakeRect(0, 0, iconSize.width, iconSize.height);
+        }
+    }
 }
 
 - (void)mouseDown:(NSEvent *)theEvent

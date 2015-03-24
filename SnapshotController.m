@@ -27,7 +27,6 @@
 #include "SnapshotController.h"
 #include "SnapshotIcon.h"
 #include "SnapshotIconView.h"
-#include "ThumbnailCell.h"
 #include "Constants.h"
 
 
@@ -574,15 +573,13 @@ BOOL loadingThumbnails = NO;
 	NSImage *icon = [self getThumbnail: camera->camera
                                    forFile: fname
                                     atPath: camera->path];
-//        NSDictionary *info = [camera->camera exifdataForFile: fname inPath: camera->path];
-//    NSLog([exif description]);
         NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
 	SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
                                                              fileName: fname
                                                          andContainer: iconView];
 	[image setIconInfo: info];
         [camera->files addObject: image];
-        [image release];
+        [image autorelease];
     }
     [ar release];
     [dateFormatter release];
@@ -610,7 +607,8 @@ BOOL loadingThumbnails = NO;
         [NSThread detachNewThreadSelector: @selector(loadImagesThread:)
                                  toTarget: self
                                withObject: camera];
-        while (loadingThumbnails && [theRL runMode: NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]) {
+        while (loadingThumbnails && [theRL runMode: NSDefaultRunLoopMode
+                                        beforeDate: [NSDate distantFuture]]) {
             unsigned current = [camera->files count];
 	    if ((current - count) >= 10) {
 		unsigned i;
@@ -629,6 +627,7 @@ BOOL loadingThumbnails = NO;
 	[self stopProgressAnimation];
     }
 
+    // add remaining icons
     unsigned i;
     for (i = count; i < [camera->files count]; i++) {
         CREATE_AUTORELEASE_POOL(pool);

@@ -51,6 +51,7 @@
 - (NSRect) iconBounds;
 
 - (void) tile;
+- (void) fixOrientation;
  
 - (void) select;
 

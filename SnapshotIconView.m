@@ -73,6 +73,7 @@ unsigned iconWidth = 0.;
 
 - (void) addIcon: (SnapshotIcon *) icon
 {
+    [icon fixOrientation];
     if ([icon iconSize].width > iconWidth) {
         iconWidth = [icon iconSize].width;
     }
