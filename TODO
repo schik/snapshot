@@ -1,6 +1,5 @@
 WISHLIST
 --------
-- Read EXIF data to rotate thumbnails properly.
 - Immediately delete downloaded images if user wishes so.
 - Add functionality to immediately open an image without downloading it first
   to the local file system (needs of course download to temporary location, but
