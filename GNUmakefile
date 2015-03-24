@@ -35,9 +35,9 @@ Snapshot_HEADERS= \
 	SnapshotController.h \
 	SnapshotIcon.h \
 	SnapshotIconView.h \
-	ThumbnailCell.h \
 	Inspector.h \
 	Attributes.h \
+	NSImage+Transform.h \
 	Constants.h
 
 #
@@ -50,9 +50,9 @@ Snapshot_OBJC_FILES= \
 	SnapshotController.m \
 	SnapshotIcon.m \
 	SnapshotIconView.m \
-	ThumbnailCell.m \
 	Inspector.m \
 	Attributes.m \
+	NSImage+Transform.m \
 	Constants.m
 
 #
