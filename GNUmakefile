@@ -7,7 +7,7 @@ include $(GNUSTEP_MAKEFILES)/common.make
 #
 # Subprojects
 #
-SUBPROJECTS = 
+SUBPROJECTS = CameraKit
 
 #
 # Main application
