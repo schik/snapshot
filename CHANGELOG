@@ -1,3 +1,8 @@
+Version 0.2.1
+-------------
+- The inspector window no longer jumps to its last saved position,
+  but immediately opens there.
+
 Version 0.2.0
 -------------
 - Read extended image data (EXIF) and display it in the inspector.
