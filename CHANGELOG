@@ -1,0 +1,15 @@
+Version 0.2.0
+-------------
+- Read extended image data (EXIF) and display it in the inspector.
+- Show thumbnails in correct orientation (landscape, portrait).
+- Fixed a memory leak.
+
+Version 0.1.1
+-------------
+- Fixed a crash when downloading/deleting images.
+- Clean up GNUmakefile.preamble.
+- Beautify drop shadows.
+
+Version 0.1.0
+-------------
+First release.
