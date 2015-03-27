@@ -119,7 +119,10 @@ BOOL loadingThumbnails = NO;
  */
 - (void) processSelectedImages: (NSString *) action
 {
-    NSString *dest = nil;
+    NSMutableDictionary *threadParams = [NSMutableDictionary new];
+    int idx = [cameraTree selectedRow];
+    OutlineItem * camera = [cameraTree itemAtRow: idx];
+    NSArray * images = [iconView selectedIcons];
 
     if ([action isEqualToString: deleteAction]) {
         if (NSRunAlertPanel(_(@"Delete images"),
@@ -128,17 +131,10 @@ BOOL loadingThumbnails = NO;
             return;
         }
     } else {
-        dest = [self getDestination];
-    }
-
-    NSMutableDictionary *threadParams = [NSMutableDictionary new];
-    int idx = [cameraTree selectedRow];
-    OutlineItem * camera = [cameraTree itemAtRow: idx];
-    NSArray * images = [iconView selectedIcons];
-
-    if ([action isEqualToString: saveAction]) {
+        NSString *dest = [self getDestination];
         [threadParams setObject: dest forKey: DOWNLOAD_PATH];
     }
+
     [threadParams setObject: camera forKey: CAMERA];
     [threadParams setObject: images forKey: IMAGES];
     [threadParams setObject: action forKey: ACTION];
