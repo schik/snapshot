@@ -70,6 +70,12 @@ static NSString *nibName = @"InspectorWin";
     return self;
 }
 
+- (void) awakeFromNib
+{
+    [window setFrameAutosaveName: @"InspectorsWindow"];
+    [window setFrameUsingName: @"InspectorsWindow"];
+}
+
 - (void)activate
 {
     [window makeKeyAndOrderFront: nil];
@@ -126,8 +132,6 @@ static NSString *nibName = @"InspectorWin";
     [[NSUserDefaults standardUserDefaults] setObject: index 
                                               forKey: @"last_active_inspector"];
     [[self attributes] updateDefaults];
-    [window setFrameAutosaveName: @"InspectorsWindow"];
-    [window setFrameUsingName: @"InspectorsWindow"];
 }
 
 - (BOOL)windowShouldClose:(id)sender
