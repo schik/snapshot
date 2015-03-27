@@ -34,6 +34,7 @@ extern const double ROW_HEIGHT_IMAGE;
 
 extern NSString *LAST_SAVE_DIR;
 extern NSString *DOWNLOAD_PATH;
+extern NSString *TIMESTAMP_PATH_FORMAT;
 extern NSString *CAMERA;
 extern NSString *IMAGES;
 extern NSString *ACTION;

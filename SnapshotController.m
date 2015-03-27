@@ -133,6 +133,10 @@ BOOL loadingThumbnails = NO;
     } else {
         NSString *dest = [self getDestination];
         [threadParams setObject: dest forKey: DOWNLOAD_PATH];
+        NSString *format = [[NSUserDefaults standardUserDefaults] stringForKey: TIMESTAMP_PATH_FORMAT];
+        if (nil != format) {
+            [threadParams setObject: format forKey: TIMESTAMP_PATH_FORMAT];
+        }
     }
 
     [threadParams setObject: camera forKey: CAMERA];
@@ -169,7 +173,8 @@ BOOL loadingThumbnails = NO;
                              toTarget: self
                            withObject: threadParams];
 
-    while (downloadRunning && [theRL runMode: NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]) {
+    while (downloadRunning && [theRL runMode: NSDefaultRunLoopMode beforeDate:
+                                                    [NSDate dateWithTimeIntervalSinceNow: .5]]) {
         [statusText setStringValue: [NSString stringWithFormat: statusString, downloadImage]];
 	[progress setDoubleValue: downloadCounter];
     }
@@ -357,16 +362,34 @@ BOOL loadingThumbnails = NO;
     OutlineItem *camera = [params objectForKey: CAMERA];
     NSArray *images = [params objectForKey: IMAGES];
     NSString *action = [params objectForKey: ACTION];
-    NSString *downloadPath = nil;
+    NSString *baseDownloadPath = nil;
+    NSFileManager *fm = [NSFileManager defaultManager];
     SnapshotIcon *image;
 
+    NSString *tsPathFormat = [params objectForKey: TIMESTAMP_PATH_FORMAT];
+    NSDateFormatter* dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+    if (nil != tsPathFormat) {
+        [dateFormatter setDateFormat: tsPathFormat];
+    }
+
     if ([action isEqualToString: saveAction]) {
-        downloadPath = [params objectForKey: DOWNLOAD_PATH];
+        baseDownloadPath = [params objectForKey: DOWNLOAD_PATH];
     }
     NSEnumerator *e = [images objectEnumerator];
     while (!abortDownload && (image = [e nextObject]) != nil) {
 	downloadImage = [image fileName];
         if ([action isEqualToString: saveAction]) {
+	    NSString *downloadPath = baseDownloadPath;
+            if (nil != tsPathFormat) {
+                NSString *tsPath = [dateFormatter stringFromDate: [image date]];
+                downloadPath = [baseDownloadPath stringByAppendingPathComponent: tsPath];
+                if (![fm fileExistsAtPath: downloadPath] &&
+                        ![fm createDirectoryAtPath: downloadPath
+                              withIntermediateDirectories: YES
+                                               attributes: nil error: (NSError **)nil]) {
+                    downloadPath = baseDownloadPath;
+                }
+	    }
             [camera->camera getFile: [image fileName] from: camera->path to: downloadPath];
         } else {
             [camera->camera deleteFile: [image fileName] from: camera->path];
@@ -505,7 +528,8 @@ BOOL loadingThumbnails = NO;
         [NSThread detachNewThreadSelector: @selector(loadFoldersThread:)
                                  toTarget: self
                                withObject: camera];
-	while (loadingFolders && [theRL runMode: NSDefaultRunLoopMode beforeDate: [NSDate distantFuture]]);
+	while (loadingFolders && [theRL runMode: NSDefaultRunLoopMode beforeDate:
+                                                    [NSDate dateWithTimeIntervalSinceNow: .5]]);
 
 	[self stopProgressAnimation];
     }
@@ -604,7 +628,7 @@ BOOL loadingThumbnails = NO;
                                  toTarget: self
                                withObject: camera];
         while (loadingThumbnails && [theRL runMode: NSDefaultRunLoopMode
-                                        beforeDate: [NSDate distantFuture]]) {
+                                        beforeDate: [NSDate dateWithTimeIntervalSinceNow: .5]]) {
             unsigned current = [camera->files count];
 	    if ((current - count) >= 10) {
 		unsigned i;

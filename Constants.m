@@ -33,6 +33,7 @@ const double ROW_HEIGHT_IMAGE = 64.;
 
 NSString *LAST_SAVE_DIR = @"LastSaveDir";
 NSString *DOWNLOAD_PATH = @"DownloadPath";
+NSString *TIMESTAMP_PATH_FORMAT = @"TimestampPathFormat";
 NSString *CAMERA = @"Camera";
 NSString *IMAGES = @"Images";
 NSString *ACTION = @"Action";
