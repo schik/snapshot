@@ -38,8 +38,6 @@
   #define min(a,b) ((a) <= (b) ? (a):(b))
 #endif
 
-unsigned iconHeight = 0.;
-unsigned iconWidth = 0.;
 
 @implementation SnapshotIconView
 
@@ -74,12 +72,6 @@ unsigned iconWidth = 0.;
 - (void) addIcon: (SnapshotIcon *) icon
 {
     [icon fixOrientation];
-    if ([icon iconSize].width > iconWidth) {
-        iconWidth = [icon iconSize].width;
-    }
-    if ([icon iconSize].height > iconHeight) {
-        iconHeight = [icon iconSize].height;
-    }
     [icons addObject: icon];
     [self addSubview: icon];
 }
@@ -131,26 +123,26 @@ unsigned iconWidth = 0.;
 {
     NSRect rect = [[self superview] frame];
 
-    int xcount = rect.size.width / (iconWidth + MARGIN);
+    int xcount = rect.size.width / (THUMBNAIL_WIDTH + MARGIN);
     int ycount = [icons count] / xcount + 1;
-    rect = NSMakeRect(rect.origin.x, -ycount * (iconHeight + MARGIN),
-	   rect.size.width, ycount * (iconHeight + MARGIN));
+    rect = NSMakeRect(rect.origin.x, -ycount * (THUMBNAIL_WIDTH + MARGIN),
+	   rect.size.width, ycount * (THUMBNAIL_WIDTH + MARGIN));
     [super setFrame: rect];
 
     int xpos = 0;
-    int ypos = rect.size.height - iconHeight - MARGIN;
+    int ypos = rect.size.height - THUMBNAIL_WIDTH - MARGIN;
     unsigned i;
 
     for (i = 0; i < [icons count]; i++) {
-        NSRect r = NSMakeRect(xpos, ypos, iconWidth + MARGIN, iconHeight + MARGIN);
+        NSRect r = NSMakeRect(xpos, ypos, THUMBNAIL_WIDTH + MARGIN, THUMBNAIL_WIDTH + MARGIN);
   
         [[icons objectAtIndex: i] setFrame: r];
     
-        xpos += iconWidth + MARGIN;
+        xpos += THUMBNAIL_WIDTH + MARGIN;
     
-        if (xpos > (rect.size.width - (iconWidth + MARGIN))) {
+        if (xpos > (rect.size.width - (THUMBNAIL_WIDTH + MARGIN))) {
             xpos = 0;
-            ypos -= (iconHeight + MARGIN);
+            ypos -= (THUMBNAIL_WIDTH + MARGIN);
         }
     }
          
