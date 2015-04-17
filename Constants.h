@@ -30,7 +30,6 @@ extern const int TAG_SAVESEL;
 extern const int TAG_DELETE;
 
 extern const double THUMBNAIL_WIDTH;
-extern const double ROW_HEIGHT_IMAGE;
 
 extern NSString *LAST_SAVE_DIR;
 extern NSString *DOWNLOAD_PATH;
