@@ -23,6 +23,7 @@
 #include <AppKit/AppKit.h>
 
 #include <CameraKit/GSCamera.h>
+#include <FreeDesktopKit/FDUserdirsFile.h>
 
 #include "SnapshotController.h"
 #include "SnapshotIcon.h"
@@ -184,10 +185,8 @@ BOOL loadingThumbnails = NO;
         [iconView removeAllIcons];
         unsigned i;
         for (i = 0; i < [camera->files count]; i++) {
-            CREATE_AUTORELEASE_POOL(pool);
             SnapshotIcon *icon = [camera->files objectAtIndex: i];
             [iconView addIcon: icon];
-            RELEASE (pool);
         }
         [iconView tile];
     }
@@ -217,6 +216,11 @@ BOOL loadingThumbnails = NO;
     [panel setCanChooseFiles: NO];
     [panel setAllowsMultipleSelection: NO];
     [panel setTitle: _(@"Set download destination")];
+
+    if ((nil == dest) || ([dest length] == 0)) {
+	FDUserdirsFile * udf = [FDUserdirsFile defaultUserdirsFile];
+	dest = [udf getUserdir: @"PICTURES"];
+    }
 
     answer = [panel runModalForDirectory: dest 
                                     file: nil
@@ -619,7 +623,7 @@ BOOL loadingThumbnails = NO;
     [iconView removeAllIcons];
     if ((nil != camera) && (nil == camera->files)) {
         camera->files = [NSMutableArray new];
-        [self startProgressAnimationWithStatus: _(@"Loading image information from camera")];
+        [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
         loadingThumbnails = YES;
 	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
@@ -633,13 +637,10 @@ BOOL loadingThumbnails = NO;
 	    if ((current - count) >= 10) {
 		unsigned i;
                 for (i = count; i < current; i++) {
-                    CREATE_AUTORELEASE_POOL(pool);
                     SnapshotIcon *icon = [camera->files objectAtIndex: i];
                     [iconView addIcon: icon];
-                    RELEASE (pool);
                 }
                 [iconView tile];
-
 		count = current;
             }
         }
@@ -650,10 +651,8 @@ BOOL loadingThumbnails = NO;
     // add remaining icons
     unsigned i;
     for (i = count; i < [camera->files count]; i++) {
-        CREATE_AUTORELEASE_POOL(pool);
         SnapshotIcon *icon = [camera->files objectAtIndex: i];
         [iconView addIcon: icon];
-        RELEASE (pool);
     }
     [iconView tile];
 }
