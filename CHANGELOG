@@ -1,3 +1,16 @@
+Version 0.3.0
+-------------
+- Fixed a bug that made the X server crash when loading the thumbnails.
+  Obviously, the images were released too often.
+- Added support for user directories as specified by freedesktop.org
+  by linking with FreeDesktopKit framework (on demand, only).
+- Add support for creating timestamp directories below the directory
+  selected for image import.
+- Set the import directory once via the preferences and not each time
+  the user imports images.
+- Do not overwrite images with the same name when importing. Instead
+  append a number to make the name unique.
+
 Version 0.2.1
 -------------
 - The inspector window no longer jumps to its last saved position,
