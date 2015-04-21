@@ -17,6 +17,10 @@ PACKAGE_NAME=Snapshot
 APP_NAME=Snapshot
 Snapshot_APPLICATION_ICON=Snapshot.tiff
 
+ifeq ($(freedesktop), no)
+  Snapshot_OBJCFLAGS += -DNOFREEDESKTOP
+endif
+
 #
 # Resource files
 #
@@ -37,6 +41,7 @@ Snapshot_HEADERS= \
 	SnapshotIconView.h \
 	Inspector.h \
 	Attributes.h \
+	Preferences.h \
 	NSImage+Transform.h \
 	Constants.h
 
@@ -52,6 +57,7 @@ Snapshot_OBJC_FILES= \
 	SnapshotIconView.m \
 	Inspector.m \
 	Attributes.m \
+	Preferences.m \
 	NSImage+Transform.m \
 	Constants.m
 
@@ -68,6 +74,7 @@ Snapshot_LOCALIZED_RESOURCE_FILES = \
 	Snapshot.gorm \
 	InspectorWin.gorm \
 	Attributes.gorm \
+	Preferences.gorm \
 	Localizable.strings
 
 -include GNUmakefile.preamble

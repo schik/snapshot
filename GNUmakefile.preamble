@@ -7,6 +7,11 @@ ADDITIONAL_CFLAGS += -Wall
 
 ADDITIONAL_INCLUDE_DIRS += `pkg-config --cflags libgphoto2`
 
-Snapshot_GUI_LIBS += -lCameraKit -lFreeDesktopKit
+Snapshot_GUI_LIBS += -lCameraKit 
+
+ifneq ($(freedesktop), no)
+  Snapshot_GUI_LIBS += -lFreeDesktopKit
+endif
+
 Snapshot_GUI_LIBS += `pkg-config --libs libgphoto2`
 

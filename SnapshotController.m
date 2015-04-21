@@ -1,3 +1,4 @@
+/* vim: set ft=objc ts=4 nowrap: */
 /*
  *    SnapshotController.m
  *
@@ -28,6 +29,7 @@
 #include "SnapshotController.h"
 #include "SnapshotIcon.h"
 #include "SnapshotIconView.h"
+#include "Preferences.h"
 #include "Constants.h"
 
 
@@ -127,14 +129,26 @@ BOOL loadingThumbnails = NO;
 
     if ([action isEqualToString: deleteAction]) {
         if (NSRunAlertPanel(_(@"Delete images"),
-                _(@"Please confirm that you wich to delete the sected images."),
+                _(@"Please confirm that you wish to delete the selected images."),
                 _(@"Do not delete"), _(@"Delete"), nil) == NSAlertDefaultReturn) {
             return;
         }
     } else {
         NSString *dest = [self getDestination];
+		if (nil == dest) {
+			// w/o dest dir no save
+        	NSRunAlertPanel(_(@"Import images"),
+                _(@"You must set the import folder in the preferences before importing images."),
+               	@"Ok", nil, nil); 
+			return;
+		}
         [threadParams setObject: dest forKey: DOWNLOAD_PATH];
-        NSString *format = [[NSUserDefaults standardUserDefaults] stringForKey: TIMESTAMP_PATH_FORMAT];
+		int useTsDir = [[NSUserDefaults standardUserDefaults]
+			integerForKey: @"UseTimestampDirectory"];
+        NSString *format = nil;
+		if (useTsDir) {
+			[[NSUserDefaults standardUserDefaults] stringForKey: TIMESTAMP_PATH_FORMAT];
+		}
         if (nil != format) {
             [threadParams setObject: format forKey: TIMESTAMP_PATH_FORMAT];
         }
@@ -207,31 +221,20 @@ BOOL loadingThumbnails = NO;
 - (NSString *) getDestination
 {
     NSUserDefaults*  defs = [NSUserDefaults standardUserDefaults];
-    NSString *dest = [defs stringForKey: LAST_SAVE_DIR];
-    id panel;
-    int answer;
-
-    panel = [NSOpenPanel openPanel];
-    [panel setCanChooseDirectories: YES];
-    [panel setCanChooseFiles: NO];
-    [panel setAllowsMultipleSelection: NO];
-    [panel setTitle: _(@"Set download destination")];
+    NSString *dest = [defs stringForKey: @"ImportDirectory"];
 
     if ((nil == dest) || ([dest length] == 0)) {
-	FDUserdirsFile * udf = [FDUserdirsFile defaultUserdirsFile];
-	dest = [udf getUserdir: @"PICTURES"];
+		// Seems like prefs are not set, yet
+		[self showPreferences: self];
+    	dest = [defs stringForKey: @"ImportDirectory"];
     }
 
-    answer = [panel runModalForDirectory: dest 
-                                    file: nil
-                                   types: nil];
+    if ((nil == dest) || ([dest length] == 0)) {
+		// prefs are still not set -> bail out
+		return nil;
+	}
 
-    if (answer == NSOKButton) {
-        dest = [[panel filenames] objectAtIndex: 0];
-    	[defs setObject: dest forKey: LAST_SAVE_DIR];
-        return dest;
-    }
-    return nil;
+	return dest;
 }
 
 - (void) startProgressAnimationWithStatus: (NSString *) statusMsg
@@ -406,6 +409,11 @@ BOOL loadingThumbnails = NO;
     [pool release];
     downloadRunning = NO;
     [NSThread exit];
+}
+
+- (void) showPreferences: (id)sender
+{
+    [[Preferences singleInstance] showPanel: self];
 }
 
 - (void) showInspector: (id)sender

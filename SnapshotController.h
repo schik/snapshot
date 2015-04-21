@@ -46,6 +46,7 @@
 }
 
 - (void) refreshClicked: (id)sender;
+- (void) showPreferences: (id)sender;
 - (void) showInspector: (id)sender;
 - (void) showPropertyInspector: (id)sender;
 
