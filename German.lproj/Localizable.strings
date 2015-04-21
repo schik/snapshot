@@ -19,7 +19,7 @@ add comments above this one
 /* File: PhotoTransferController.m:405 */
 "No cameras detected." = "Keine Kameras gefunden.";
 /* File: PhotoTransferController.m:190 */
-"Please confirm that you wich to delete the sected images."
+"Please confirm that you wish to delete the selected images."
 = "Bitte best\U00e4tigen Sie, dass Sie die gew\U00e4hlten Bilder l\U00f6schen wollen";
 /* File: PhotoTransferController.m:384 */
 "Searching for cameras" = "Suche nach Kameras";
@@ -33,3 +33,6 @@ add comments above this one
 "%d images selected" = "%d Bilder ausgew\U00e4hlt";
 
 "Properties Inspector" = "Eigenschafteninspektor";
+"Import images" = "Bilder importieren";
+"You must set the import folder in the preferences before importing images."
+= "Sie m\U00fcssen vor dem Import den Importordner ausw\U00e4hlen."
