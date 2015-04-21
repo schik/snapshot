@@ -102,22 +102,30 @@
 
 - (void) getFile: (NSString *)aFile from: (NSString *)srcPath to: (NSString *)destPath
 {
+    [self getFile: aFile from: srcPath toFile: nil at: destPath];
+}
+
+- (void) getFile: (NSString *)aFile from: (NSString *)srcPath toFile: (NSString *)newFile at: (NSString *)destPath
+{
   CameraFile *file;
   GPContext *context;
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
+
+  if ((nil == newFile) || ([newFile length] == 0)) {
+      newFile = aFile;
+  }
 
   context = gp_context_new();
   gp_file_new(&file);
 
   gp_camera_file_get(theCamera, [srcPath cString], [aFile cString],
 		     GP_FILE_TYPE_NORMAL, file, context);
-  gp_file_save(file, [[NSString stringWithFormat: @"%@/%@", destPath, aFile] cString]);
+  gp_file_save(file, [[NSString stringWithFormat: @"%@/%@", destPath, newFile] cString]);
 
   gp_file_unref(file);
 
   RELEASE(pool);
 }
-
 
 - (void) deleteFile: (NSString *)file from: (NSString *)path
 {

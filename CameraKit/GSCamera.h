@@ -21,6 +21,7 @@
 - (NSArray *) filesInPath: (NSString *) aPath;
 - (NSArray *) foldersInPath: (NSString *) aPath;
 - (void) getFile: (NSString *)aFile from: (NSString *)srcPath to: (NSString *)destPath;
+- (void) getFile: (NSString *)aFile from: (NSString *)srcPath toFile: (NSString *)newFile at: (NSString *)destPath;
 - (void) deleteFile: (NSString *)file from: (NSString *)path;
 - (void) putFile: (NSString *)file from: (NSString *)srcPath to: (NSString *)destPath;
 - (NSString *) description;
