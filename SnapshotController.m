@@ -108,6 +108,7 @@ BOOL loadingThumbnails = NO;
 
 - (void) processSelectedImages: (NSString *) action;
 - (NSString *) getDestination;
+- (NSString *) getUniqueNameForFile: (NSString *) fname atPath: (NSString *) path;
 - (void) startProgressAnimationWithStatus: (NSString *) statusMsg;
 - (void) stopProgressAnimation;
 
@@ -235,6 +236,38 @@ BOOL loadingThumbnails = NO;
 	}
 
 	return dest;
+}
+
+- (NSString *) getUniqueNameForFile: (NSString *) fname atPath: (NSString *) path
+{
+    // raise an exception for invalid paths
+    if ((nil == path) || ([path length] == 0)) {
+        [NSException raise: @"DMStringUtilsException" format: @"Invalid path"];
+    }
+
+    NSFileManager *fm = [NSFileManager defaultManager];
+    BOOL isDirectory;
+
+	NSString *toTest = [path stringByAppendingPathComponent: fname];
+    // file does not exist, so the path doesn't need to change
+    if (![fm fileExistsAtPath: toTest isDirectory: &isDirectory]) {
+        return fname;
+    }
+
+    NSString *fileName = isDirectory ? fname : [fname stringByDeletingPathExtension];
+    NSString *ext = isDirectory ? @"" : [NSString stringWithFormat:@".%@", [fname pathExtension]];
+
+	NSString *result = nil;
+    int counter = 1;
+	while (nil == result) {
+		toTest = [path stringByAppendingPathComponent:
+			[NSString stringWithFormat:@"%@-%i%@", fileName, counter, ext]];
+        if (![fm fileExistsAtPath: toTest isDirectory: &isDirectory]) {
+            result = [NSString stringWithFormat:@"%@-%i%@", fileName, counter, ext];
+        }
+        counter++;
+	}
+    return result;
 }
 
 - (void) startProgressAnimationWithStatus: (NSString *) statusMsg
@@ -384,9 +417,9 @@ BOOL loadingThumbnails = NO;
     }
     NSEnumerator *e = [images objectEnumerator];
     while (!abortDownload && (image = [e nextObject]) != nil) {
-	downloadImage = [image fileName];
+        downloadImage = [image fileName];
         if ([action isEqualToString: saveAction]) {
-	    NSString *downloadPath = baseDownloadPath;
+            NSString *downloadPath = baseDownloadPath;
             if (nil != tsPathFormat) {
                 NSString *tsPath = [dateFormatter stringFromDate: [image date]];
                 downloadPath = [baseDownloadPath stringByAppendingPathComponent: tsPath];
@@ -396,14 +429,15 @@ BOOL loadingThumbnails = NO;
                                                attributes: nil error: (NSError **)nil]) {
                     downloadPath = baseDownloadPath;
                 }
-	    }
-            [camera->camera getFile: [image fileName] from: camera->path to: downloadPath];
+            }
+            NSString *newFile = [self getUniqueNameForFile: [image fileName] atPath: downloadPath];
+            [camera->camera getFile: [image fileName] from: camera->path toFile: newFile at: downloadPath];
         } else {
             [camera->camera deleteFile: [image fileName] from: camera->path];
             // Remove the object from our data cache
-	    [camera->files removeObject: image];
+            [camera->files removeObject: image];
         }
-	downloadCounter++;
+        downloadCounter++;
     }
 
     [pool release];
@@ -535,15 +569,15 @@ BOOL loadingThumbnails = NO;
         [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
         loadingFolders = YES;
-	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
+        NSRunLoop *theRL = [NSRunLoop currentRunLoop];
 
         [NSThread detachNewThreadSelector: @selector(loadFoldersThread:)
                                  toTarget: self
                                withObject: camera];
-	while (loadingFolders && [theRL runMode: NSDefaultRunLoopMode beforeDate:
+        while (loadingFolders && [theRL runMode: NSDefaultRunLoopMode beforeDate:
                                                     [NSDate dateWithTimeIntervalSinceNow: .5]]);
 
-	[self stopProgressAnimation];
+        [self stopProgressAnimation];
     }
     return camera;
 }
