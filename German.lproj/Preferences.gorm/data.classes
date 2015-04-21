@@ -1,0 +1,32 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    FirstResponder = {
+	Actions = (
+	    "browseAction:",
+	    "toggleTimestampAction:",
+	    "saveAction:"
+	);
+	Super = NSObject;
+    };
+    NewClass = {
+	Actions = (
+	);
+	Outlets = (
+	);
+	Super = NSObject;
+    };
+    Preferences = {
+	Actions = (
+	    "browseAction:",
+	    "toggleTimestampAction:",
+	    "saveAction:"
+	);
+	Outlets = (
+	    importFolderText,
+	    timestampFormatText,
+	    timestampSubfolderCheckBox,
+	    window
+	);
+	Super = NSObject;
+    };
+}
