@@ -22,12 +22,20 @@ o You must install the CameraKit framework first. CameraKit is part of the
 o You must also have libgphoto2 and its header files on your system. But this
   is required for CameraKit anyway.
 
+o Snapshot makes use of some features specfied by freedesktop.org. Mainly, it
+  uses the user-dir specifications. This functionality is supplied by the
+  FreeDesktopKit available from schik's github account. You can, however, build
+  Snapshot without this (see instructions below).
+
 o To build Snapshot.app simply do the following:
 	make
 
   Note, that the GNUmakefile uses pkg-config to find the compiler and linker
   flags for libgphoto2. If that does not work for you, you may want to adjust
   these settings.
+
+  If you do not want to use the FreeDesktopKit, compile Snapshot like this:
+        make freedesktop=no
 
 o To install Snapshot.app in your global GNUstep directory do:
 	make install
