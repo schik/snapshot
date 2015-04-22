@@ -148,7 +148,7 @@ BOOL loadingThumbnails = NO;
 			integerForKey: @"UseTimestampDirectory"];
         NSString *format = nil;
 		if (useTsDir) {
-			[[NSUserDefaults standardUserDefaults] stringForKey: TIMESTAMP_PATH_FORMAT];
+			format = [[NSUserDefaults standardUserDefaults] stringForKey: TIMESTAMP_PATH_FORMAT];
 		}
         if (nil != format) {
             [threadParams setObject: format forKey: TIMESTAMP_PATH_FORMAT];
