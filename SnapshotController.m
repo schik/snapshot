@@ -367,8 +367,8 @@ BOOL loadingThumbnails = NO;
     NSImage *image = [camera thumbnailForFile: file inPath: path];
     if (image) {
         NSSize size = [image size];
-	// scale the image to our tablerow width
-	double factor = THUMBNAIL_WIDTH / size.width;
+        // scale the image to our tablerow width
+        double factor = THUMBNAIL_WIDTH / size.width;
         size.width *= factor;
         size.height *= factor;
         [image setScalesWhenResized: YES];
