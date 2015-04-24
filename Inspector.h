@@ -30,6 +30,10 @@
 
 @interface Inspector : NSObject 
 {
+    id topBox;
+    id iconView;
+    id titleField;
+
     NSWindow *window;
     NSPopUpButton *popUp;
     NSBox *inspBox;

@@ -6,9 +6,6 @@
 	Outlets = (
 	    window,
 	    mainBox,
-	    topBox,
-	    iconView,
-	    titleField,
 	    sizeField,
 	    dateField,
 	    imageSizeField,

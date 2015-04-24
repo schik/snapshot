@@ -104,14 +104,11 @@ static NSDateFormatter* timeFormatter = nil;
 
 - (void) removeImages
 {
-    NSImage *fileIcon = [NSImage imageNamed: @"iconDelete.tiff"];
-    [iconView setImage: fileIcon];
-
-    [titleField setStringValue: _(@"No image selected")];
     [exposureField setStringValue: @""];
     [imageSizeField setStringValue: @""];
     [sizeField setStringValue: @""];
     [dateField setStringValue: @""];
+    [timeField setStringValue: @""];
 }
 
 - (void) setImages: (NSArray *)images
@@ -123,11 +120,6 @@ static NSDateFormatter* timeFormatter = nil;
         return;
     }
     if ([images count] > 1) {
-        NSImage *fileIcon = [NSImage imageNamed: @"iconMultiSelection.tiff"];
-        [iconView setImage: fileIcon];
-
-        [titleField setStringValue:
-	    [NSString stringWithFormat: _(@"%d Images selected"), [images count]]];
         [exposureField setStringValue: @""];
         [imageSizeField setStringValue: @""];
         [sizeField setStringValue: @""];
@@ -139,10 +131,6 @@ static NSDateFormatter* timeFormatter = nil;
 
 //    NSDictionary *iconInfo = [snIcon iconInfo];
 
-    [iconView setImage: [snIcon icon]];
-
-    [titleField setStringValue: [snIcon fileName]];
-    
     [exposureField setStringValue: [NSString stringWithFormat: @"%@, %@",
 	[snIcon fNumber], [snIcon exposureTime]]];
     [imageSizeField setStringValue: [NSString stringWithFormat: @"%dx%d",

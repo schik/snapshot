@@ -26,7 +26,6 @@
 {
     id window;
     id mainBox;
-    id topBox;
 
     id dateField;
     id timeField;
@@ -35,9 +34,6 @@
     id sizeField;
     id imageSizeField;
   
-    id iconView;
-    id titleField;
-
 //    id exifInfoTable;
 
 //    NSDictionary *iconInfo;

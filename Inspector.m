@@ -24,6 +24,7 @@
 
 #import "Inspector.h"
 #import "Attributes.h"
+#import "SnapshotIcon.h"
 
 #define ATTRIBUTES   0
 
@@ -33,6 +34,9 @@ static NSString *nibName = @"InspectorWin";
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver: self
+                           name: @"ImageSelectionChanged"
+                         object: nil];
     RELEASE (inspectors);
     RELEASE (window);
    
@@ -58,6 +62,11 @@ static NSString *nibName = @"InspectorWin";
       while ([[popUp itemArray] count] > 0) {
           [popUp removeItemAtIndex: 0];
       }
+
+      [[NSNotificationCenter defaultCenter] addObserver: self
+                              selector: @selector(imageChanged:)
+                                  name: @"ImageSelectionChanged"
+                                object: nil];
 
       currentInspector = [[Attributes alloc] initForInspector: self];
       [inspectors insertObject: currentInspector atIndex: ATTRIBUTES]; 
@@ -104,6 +113,30 @@ static NSString *nibName = @"InspectorWin";
         [window setTitle: [insp winname]];
         [inspBox setContentView: [insp inspView]];	 
     }
+}
+
+- (void) imageChanged: (id)notification
+{
+    NSArray *images = [[notification userInfo] objectForKey: @"Images"];
+
+    if (!images || [images count] == 0) {
+        NSImage *fileIcon = [NSImage imageNamed: @"iconDelete.tiff"];
+        [iconView setImage: fileIcon];
+        [titleField setStringValue: _(@"No image selected")];
+        return;
+    }
+
+    if ([images count] > 1) {
+        NSImage *fileIcon = [NSImage imageNamed: @"iconMultiSelection.tiff"];
+        [iconView setImage: fileIcon];
+        [titleField setStringValue:
+	    [NSString stringWithFormat: _(@"%d Images selected"), [images count]]];
+	return;
+    }
+
+    SnapshotIcon *snIcon = [images objectAtIndex: 0];
+    [iconView setImage: [snIcon icon]];
+    [titleField setStringValue: [snIcon fileName]];
 }
 
 - (void) showAttributes
