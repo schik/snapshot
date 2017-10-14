@@ -19,7 +19,7 @@
 
 include $(GNUSTEP_MAKEFILES)/common.make
 
-FRAMEWORK_NAME=CameraKit
+FRAMEWORK_NAME=CameraKitSchik
 
 CameraKit_HEADER_FILES = \
 	GSGPhoto2.h \
