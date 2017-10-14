@@ -36,7 +36,7 @@ ADDITIONAL_OBJCFLAGS = -Wall
 ADDITIONAL_LDFLAGS = `pkg-config --libs libgphoto2`
 
 ## chainjazz ##
-ADDITIONAL_INCLUDE_DIRS += `-I/usr/local/include/libexif
+ADDITIONAL_INCLUDE_DIRS += `-I/usr/local/include/libexif`
 ## chainjazz ##
 
 -include GNUmakefile.preamble
