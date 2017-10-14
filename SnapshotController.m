@@ -24,7 +24,10 @@
 #include <AppKit/AppKit.h>
 
 #include <CameraKit/GSCamera.h>
-#include <FreeDesktopKit/FDUserdirsFile.h>
+
+// ## chainjazz ##
+// #include <FreeDesktopKit/FDUserdirsFile.h> why this when freedesktop=no?
+// ## chainjazz ##
 
 #include "SnapshotController.h"
 #include "SnapshotIcon.h"
