@@ -21,15 +21,15 @@ include $(GNUSTEP_MAKEFILES)/common.make
 
 FRAMEWORK_NAME=CameraKitSchik
 
-CameraKit_HEADER_FILES = \
+CameraKitSchik_HEADER_FILES = \
 	GSGPhoto2.h \
 	GSCamera.h
 
-CameraKit_OBJC_FILES = \
+CameraKitSchik_OBJC_FILES = \
 	GSGPhoto2.m \
 	GSCamera.m
 
-CameraKit_RESOURCE_FILES =
+CameraKitSchik_RESOURCE_FILES =
 
 ADDITIONAL_INCLUDE_DIRS = `pkg-config --cflags libgphoto2`
 ADDITIONAL_OBJCFLAGS = -Wall
