@@ -17,6 +17,11 @@
 # See the GNU General Public License for more details.
 #
 
+## chainjazz ##
+# Install into the system root by default
+GNUSTEP_INSTALLATION_DOMAIN=USER
+## chainjazz ##
+
 include $(GNUSTEP_MAKEFILES)/common.make
 
 FRAMEWORK_NAME=CameraKitSchik
