@@ -17,23 +17,32 @@
 # See the GNU General Public License for more details.
 #
 
+## chainjazz ##
+# Install into the system root by default
+GNUSTEP_INSTALLATION_DOMAIN=USER
+## chainjazz ##
+
 include $(GNUSTEP_MAKEFILES)/common.make
 
-FRAMEWORK_NAME=CameraKit
+FRAMEWORK_NAME=CameraKitSchik
 
-CameraKit_HEADER_FILES = \
+CameraKitSchik_HEADER_FILES = \
 	GSGPhoto2.h \
 	GSCamera.h
 
-CameraKit_OBJC_FILES = \
+CameraKitSchik_OBJC_FILES = \
 	GSGPhoto2.m \
 	GSCamera.m
 
-CameraKit_RESOURCE_FILES =
+CameraKitSchik_RESOURCE_FILES =
 
 ADDITIONAL_INCLUDE_DIRS = `pkg-config --cflags libgphoto2`
 ADDITIONAL_OBJCFLAGS = -Wall
 ADDITIONAL_LDFLAGS = `pkg-config --libs libgphoto2`
+
+## chainjazz ##
+ADDITIONAL_INCLUDE_DIRS += '-I/usr/local/include/libexif'
+## chainjazz ##
 
 -include GNUmakefile.preamble
 
