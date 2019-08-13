@@ -113,8 +113,6 @@ static NSDateFormatter* timeFormatter = nil;
 
 - (void) setImages: (NSArray *)images
 {
-//    iconInfo = nil;
-
     if (!images || [images count] == 0) {
         [self removeImages];
         return;
@@ -129,19 +127,13 @@ static NSDateFormatter* timeFormatter = nil;
 
     SnapshotIcon *snIcon = [images objectAtIndex: 0];
 
-//    NSDictionary *iconInfo = [snIcon iconInfo];
-
     [exposureField setStringValue: [NSString stringWithFormat: @"%@, %@",
 	[snIcon fNumber], [snIcon exposureTime]]];
     [imageSizeField setStringValue: [NSString stringWithFormat: @"%dx%d",
 	[snIcon width], [snIcon height]]];
-    [sizeField setStringValue: [NSString stringWithFormat: @"%d kB", [snIcon fileSize]]];
+    [sizeField setStringValue: [NSString stringWithFormat: @"%d Bytes", [snIcon fileSize]]];
     [dateField setStringValue: [dateFormatter stringFromDate: [snIcon date]]];
     [timeField setStringValue: [timeFormatter stringFromDate: [snIcon date]]];
-
-#if 0
-    [exifInfoTable reloadData];
-#endif
 }
 
 
