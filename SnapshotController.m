@@ -24,7 +24,10 @@
 #include <AppKit/AppKit.h>
 
 #include <CameraKit/GSCamera.h>
+
+#ifndef NOFREEDESKTOP
 #include <FreeDesktopKit/FDUserdirsFile.h>
+#endif
 
 #include "SnapshotController.h"
 #include "SnapshotIcon.h"
