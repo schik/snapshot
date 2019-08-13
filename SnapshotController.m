@@ -368,7 +368,12 @@ BOOL loadingThumbnails = NO;
     if (image) {
         NSSize size = [image size];
         // scale the image to our tablerow width
-        double factor = THUMBNAIL_WIDTH / size.width;
+        double factor;
+		if (size.width >= size.height) {
+            factor = THUMBNAIL_WIDTH / size.width;
+		} else {
+            factor = THUMBNAIL_WIDTH / size.height;
+		}
         size.width *= factor;
         size.height *= factor;
         [image setScalesWhenResized: YES];
