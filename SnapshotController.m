@@ -353,7 +353,9 @@ BOOL loadingThumbnails = NO;
     if (refreshRunning && (TAG_HIDE !=[item tag])) {
         return NO;
     }
-    if (((TAG_SAVESEL == [item tag]) || (TAG_DELETE == [item tag]))
+    if (((TAG_SAVESEL == [item tag])
+               || (TAG_DELETE == [item tag])
+               || (TAG_OPEN == [item tag]))
             && (0 == [[iconView selectedIcons] count])) {
         return NO;
     }
@@ -394,6 +396,25 @@ BOOL loadingThumbnails = NO;
 - (void) abortClicked: (id)sender
 {
     abortDownload = YES;
+}
+
+- (void) openSelectedClicked: (id)sender
+{
+    int idx = [cameraTree selectedRow];
+    OutlineItem * camera = [cameraTree itemAtRow: idx];
+    NSArray * images = [iconView selectedIcons];
+
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+	NSString *tempDir = NSTemporaryDirectory();
+    SnapshotIcon *image;
+
+    NSEnumerator *e = [images objectEnumerator];
+    while ((image = [e nextObject]) != nil) {
+        NSString *newFile = [self getUniqueNameForFile: [image fileName] atPath: tempDir];
+        [camera->camera getFile: [image fileName] from: camera->path toFile: newFile at: tempDir];
+        [ws openFile: [tempDir stringByAppendingPathComponent: newFile]];
+    }
+
 }
 
 - (void) deleteSelectedClicked: (id)sender

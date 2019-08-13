@@ -45,10 +45,14 @@
     Inspector *inspector;
 }
 
+- (void) abortClicked: (id)sender;
 - (void) refreshClicked: (id)sender;
 - (void) showPreferences: (id)sender;
 - (void) showInspector: (id)sender;
 - (void) showPropertyInspector: (id)sender;
+- (void) deleteSelectedClicked: (id)sender;
+- (void) saveSelectedClicked: (id)sender;
+- (void) openSelectedClicked: (id)sender;
 
 @end
 
