@@ -320,6 +320,13 @@ BOOL loadingThumbnails = NO;
 
 - (void) awakeFromNib
 {
+    double defaultWidth = [[NSUserDefaults standardUserDefaults] doubleForKey: @"ThumbnailWidth"];
+		NSLog(@"tw: %f\n", defaultWidth);
+	if (defaultWidth != 0.) {
+		NSLog(@"tw: %f\n", defaultWidth);
+        THUMBNAIL_WIDTH = defaultWidth;
+	}
+
     // We do not need the Abort button all the time
     [abort setHidden: YES];
     // Move the indicator every 12th sec.
