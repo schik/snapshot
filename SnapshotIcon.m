@@ -112,7 +112,7 @@
 - (NSUInteger) fileSize
 {
     if (nil != iconInfo) {
-        return [[iconInfo objectForKey: @"size"] intValue];
+        return [[iconInfo objectForKey: @"FileSize"] intValue];
     }
     return 0;
 }
@@ -120,7 +120,7 @@
 - (NSUInteger) height;
 {
     if (nil != iconInfo) {
-        return [[iconInfo objectForKey: @"height"] intValue];
+        return [[iconInfo objectForKey: @"PixelYDimension"] intValue];
     }
     return 0;
 }
@@ -128,7 +128,7 @@
 - (NSUInteger) width;
 {
     if (nil != iconInfo) {
-        return [[iconInfo objectForKey: @"width"] intValue];
+        return [[iconInfo objectForKey: @"PixelXDimension"] intValue];
     }
     return 0;
 }
@@ -136,18 +136,18 @@
 - (NSDate *) date;
 {
     if (nil != iconInfo) {
-        return [iconInfo objectForKey: @"mtime"];
+        return [iconInfo objectForKey: @"Mtime"];
     }
     return [NSDate dateWithTimeIntervalSince1970:0];
 }
 
 - (NSString *) exposureTime {
-    return [iconInfo objectForKey: @"exptime"];
+    return [iconInfo objectForKey: @"ExposureTime"];
 }
 
 - (NSString *) fNumber
 {
-    return [iconInfo objectForKey: @"fnumber"];
+    return [iconInfo objectForKey: @"FNumber"];
 }
 
 - (NSSize) iconSize
@@ -176,7 +176,7 @@
 
 - (void) fixOrientation
 {
-    NSNumber *num = [iconInfo objectForKey: @"orientation"];
+    NSNumber *num = [iconInfo objectForKey: @"OrientationNum"];
     if (nil != num) {
 	NSImage *newIcon = nil;
         int o = [num intValue];
