@@ -45,7 +45,7 @@
     self = [super init];
 
     if (self) {
-	container = cont;
+        container = cont;
         ASSIGN(fileName, fname);
         ASSIGN(icon, img);
         iconSize = [icon size];
@@ -112,7 +112,7 @@
 - (NSUInteger) fileSize
 {
     if (nil != iconInfo) {
-        return [[iconInfo objectForKey: @"size"] intValue];
+        return [[iconInfo objectForKey: @"FileSize"] intValue];
     }
     return 0;
 }
@@ -120,7 +120,7 @@
 - (NSUInteger) height;
 {
     if (nil != iconInfo) {
-        return [[iconInfo objectForKey: @"height"] intValue];
+        return [[iconInfo objectForKey: @"PixelYDimension"] intValue];
     }
     return 0;
 }
@@ -128,7 +128,7 @@
 - (NSUInteger) width;
 {
     if (nil != iconInfo) {
-        return [[iconInfo objectForKey: @"width"] intValue];
+        return [[iconInfo objectForKey: @"PixelXDimension"] intValue];
     }
     return 0;
 }
@@ -136,18 +136,18 @@
 - (NSDate *) date;
 {
     if (nil != iconInfo) {
-        return [iconInfo objectForKey: @"mtime"];
+        return [iconInfo objectForKey: @"Mtime"];
     }
     return [NSDate dateWithTimeIntervalSince1970:0];
 }
 
 - (NSString *) exposureTime {
-    return [iconInfo objectForKey: @"exptime"];
+    return [iconInfo objectForKey: @"ExposureTime"];
 }
 
 - (NSString *) fNumber
 {
-    return [iconInfo objectForKey: @"fnumber"];
+    return [iconInfo objectForKey: @"FNumber"];
 }
 
 - (NSSize) iconSize
@@ -176,7 +176,7 @@
 
 - (void) fixOrientation
 {
-    NSNumber *num = [iconInfo objectForKey: @"orientation"];
+    NSNumber *num = [iconInfo objectForKey: @"OrientationNum"];
     if (nil != num) {
 	NSImage *newIcon = nil;
         int o = [num intValue];
@@ -262,18 +262,23 @@
 
 - (void)drawRect: (NSRect)rect
 {
-    NSRect shadowRect = NSMakeRect(iconBounds.origin.x + 3, iconBounds.origin.y - 3,
+    CGFloat frameWidth = 6.0;
+    if (isSelected) {
+        frameWidth = 8.0;
+    }
+
+    NSRect shadowRect = NSMakeRect(iconBounds.origin.x + frameWidth/2., iconBounds.origin.y - frameWidth/2.,
             iconBounds.size.width, iconBounds.size.height);
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect: shadowRect
                                                          xRadius: 0.5
                                                          yRadius: 0.5];
-    [path setLineWidth: 8.0];
+    [path setLineWidth: frameWidth+2.0];
     [[NSColor colorWithCalibratedRed: 0.17 green: 0.17 blue: 0.17 alpha: .1] set];
     [path stroke];
-    [path setLineWidth: 6.0];
+    [path setLineWidth: frameWidth];
     [[NSColor colorWithCalibratedRed: 0.17 green: 0.17 blue: 0.17 alpha: .5] set];
     [path stroke];
-    [path setLineWidth: 4.0];
+    [path setLineWidth: frameWidth-2.0];
     [[NSColor colorWithCalibratedRed: 0.17 green: 0.17 blue: 0.17 alpha: 1.] set];
     [path stroke];
 
@@ -281,14 +286,14 @@
         path = [NSBezierPath bezierPathWithRoundedRect: iconBounds
                                                xRadius: 0.5
                                                yRadius: 0.5];
-        [path setLineWidth: 6.0];
-        [[NSColor colorWithCalibratedRed: 0.13 green: 0.87 blue: 1. alpha: 1.] set];
+        [path setLineWidth: frameWidth];
+        [[NSColor colorWithCalibratedRed: 0.91 green: 0.6 blue: 0.15 alpha: 1.] set];
         [path stroke];
     } else {
         path = [NSBezierPath bezierPathWithRoundedRect: iconBounds
                                                xRadius: 0.5
                                                yRadius: 0.5];
-        [path setLineWidth: 6.0];
+        [path setLineWidth: frameWidth];
         [[NSColor colorWithCalibratedRed: 0.67 green: 0.67 blue: 0.67 alpha: 1.] set];
         [path stroke];
     }

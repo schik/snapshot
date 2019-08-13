@@ -123,7 +123,14 @@
 {
     NSRect rect = [[self superview] frame];
 
-    int xcount = rect.size.width / (THUMBNAIL_WIDTH + MARGIN);
+	/* Make sure that the view is broad enough for at least one icon.
+     */
+	if (rect.size.width < (THUMBNAIL_WIDTH + MARGIN)) {
+        rect.size.width = 2 * (THUMBNAIL_WIDTH + MARGIN);
+        [super setFrame: rect];
+	}
+  
+  	int xcount = rect.size.width / (THUMBNAIL_WIDTH + MARGIN);
     int ycount = [icons count] / xcount + 1;
     rect = NSMakeRect(rect.origin.x, -ycount * (THUMBNAIL_WIDTH + MARGIN),
 	   rect.size.width, ycount * (THUMBNAIL_WIDTH + MARGIN));

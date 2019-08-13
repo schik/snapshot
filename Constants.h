@@ -28,8 +28,9 @@ extern const int TAG_HIDE;
 extern const int TAG_REFRESH;
 extern const int TAG_SAVESEL;
 extern const int TAG_DELETE;
+extern const int TAG_OPEN;
 
-extern const double THUMBNAIL_WIDTH;
+extern double THUMBNAIL_WIDTH;
 
 extern NSString *LAST_SAVE_DIR;
 extern NSString *DOWNLOAD_PATH;

@@ -172,6 +172,14 @@
   return [image autorelease];
 }
 
+- (NSString *) getStringValue: (ExifEntry *) ee
+{
+    char v[1024];
+    exif_entry_get_value(ee, v, sizeof(v));
+    NSString *value = [NSString stringWithFormat: @"%s", v];
+    return value;
+}
+
 - (NSDictionary *) exifdataForFile: (NSString *)file inPath: (NSString *)path
 {
   NSMutableDictionary *dict = [[NSMutableDictionary new] autorelease];
@@ -181,106 +189,58 @@
                   [file cString], GP_FILE_TYPE_EXIF, cfile, NULL);
 
   if (result >= 0) {
-      const char *data;
-      unsigned long size;
-      gp_file_get_data_and_size(cfile, &data, &size);
-      ExifData *edata = exif_data_new_from_data((const unsigned char *)data, size);
-      unsigned int i;
-      unsigned int j;
+    const char *data;
+    unsigned long size;
+    gp_file_get_data_and_size(cfile, &data, &size);
+    ExifData *edata = exif_data_new_from_data((const unsigned char *)data, size);
+    unsigned int i;
+    unsigned int j;
 
-      if (edata) {
-	for (i = 0; i < EXIF_IFD_COUNT; i++) {
-          if (edata->ifd[i]) {
-            for (j = 0; j < edata->ifd[i]->count; j++) {
-              ExifEntry *ee = edata->ifd[i]->entries[j];
+    if (edata) {
+	  for (i = 0; i < EXIF_IFD_COUNT; i++) {
+        if (edata->ifd[i]) {
+          for (j = 0; j < edata->ifd[i]->count; j++) {
+            ExifEntry *ee = edata->ifd[i]->entries[j];
 
-	      NSString *name = [NSString stringWithFormat: @"%s",
-		       exif_tag_get_name_in_ifd(ee->tag, exif_entry_get_ifd(ee))];
+			NSString *name = [NSString stringWithFormat: @"%s",
+                exif_tag_get_name_in_ifd(ee->tag, exif_entry_get_ifd(ee))];
 
-              char v[1024];
-	      exif_entry_get_value(ee, v, sizeof(v));
-	      NSString *value = [NSString stringWithFormat: @"%s", v];
-	      [dict setObject: value forKey: name];
-            }
-          }
-	}
-        exif_data_free(edata);
-      }
+	        NSString *value = [self getStringValue: ee];
+	        [dict setObject: value forKey: name];
+
+			if ([name isEqualToString: @"Orientation"]) {
+              ExifByteOrder byteOrder = exif_data_get_byte_order(edata);
+              int orientation = exif_get_short(ee->data, byteOrder);
+              [dict setObject: [NSNumber numberWithInt: orientation] forKey: @"OrientationNum"];
+			}
+		  }
+        }
+	  }
+      exif_data_free(edata);
+    }
   }	
   gp_file_unref(cfile);
   return [[NSDictionary alloc] initWithDictionary: dict];
 }
 
-- (NSString *) getStringValue: (ExifEntry *) ee
-{
-    char v[1024];
-    exif_entry_get_value(ee, v, sizeof(v));
-    NSString *value = [NSString stringWithFormat: @"%s", v];
-    return value;
-}
-
 - (NSDictionary *) infoForFile: (NSString *)file inPath: (NSString *)path
 {
   NSMutableDictionary *dict = [[NSMutableDictionary new] autorelease];
-  CameraFile *cfile;
-  gp_file_new(&cfile);
-  int result = gp_camera_file_get (theCamera, [path cString],
-                  [file cString], GP_FILE_TYPE_EXIF, cfile, NULL);
+  [dict setDictionary: [self exifdataForFile: file inPath: path]];
 
-  if (result >= 0) {
-      const char *data;
-      unsigned long size;
-      gp_file_get_data_and_size(cfile, &data, &size);
-      ExifData *edata = exif_data_new_from_data((const unsigned char *)data, size);
-
-      if (edata) {
-        ExifByteOrder byteOrder = exif_data_get_byte_order(edata);
-        ExifEntry *ee = exif_data_get_entry(edata, EXIF_TAG_ORIENTATION);
-        if (ee) {
-          int orientation = exif_get_short(ee->data, byteOrder);
-          [dict setObject: [NSNumber numberWithInt: orientation] forKey: @"orientation"];
-        }
-        ee = exif_data_get_entry(edata, EXIF_TAG_PIXEL_Y_DIMENSION);
-        if (ee) {
-          NSString *value = [self getStringValue: ee];
-          [dict setObject: value forKey: @"height"];
-        }
-        ee = exif_data_get_entry(edata, EXIF_TAG_PIXEL_X_DIMENSION);
-        if (ee) {
-          NSString *value = [self getStringValue: ee];
-          [dict setObject: value forKey: @"width"];
-        }
-        ee = exif_data_get_entry(edata, EXIF_TAG_EXPOSURE_TIME);
-        if (ee) {
-          NSString *value = [self getStringValue: ee];
-          [dict setObject: value forKey: @"exptime"];
-        }
-        ee = exif_data_get_entry(edata, EXIF_TAG_FNUMBER);
-        if (ee) {
-          NSString *value = [self getStringValue: ee];
-          [dict setObject: value forKey: @"fnumber"];
-        }
-        ee = exif_data_get_entry(edata, EXIF_TAG_FLASH);
-        if (ee) {
-          NSString *value = [self getStringValue: ee];
-          [dict setObject: value forKey: @"flash"];
-        }
-        exif_data_free(edata);
-      }
-  }	
+  int result;
 
   CameraFileInfo info;
   result = gp_camera_file_get_info (theCamera, [path cString],
                   [file cString], &info, NULL);
   if (result >= 0) {
-      if (info.file.fields & GP_FILE_INFO_SIZE) {
-	  [dict setObject: [NSNumber numberWithInteger: info.file.size] forKey: @"size"];
-      }
-      if (info.file.fields & GP_FILE_INFO_MTIME) {
-	  [dict setObject: [NSDate dateWithTimeIntervalSince1970: info.file.mtime] forKey: @"mtime"];
-      }
+    if (info.file.fields & GP_FILE_INFO_SIZE) {
+	  [dict setObject: [NSNumber numberWithInteger: info.file.size] forKey: @"FileSize"];
+    }
+    if (info.file.fields & GP_FILE_INFO_MTIME) {
+	  [dict setObject: [NSDate dateWithTimeIntervalSince1970: info.file.mtime] forKey: @"Mtime"];
+    }
   } 
-  gp_file_unref(cfile);
   return [[NSDictionary alloc] initWithDictionary: dict];
 }
 

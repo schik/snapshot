@@ -25,9 +25,9 @@
 
 #include <CameraKit/GSCamera.h>
 
-// ## chainjazz ##
-// #include <FreeDesktopKit/FDUserdirsFile.h> why this when freedesktop=no?
-// ## chainjazz ##
+#ifndef NOFREEDESKTOP
+#include <FreeDesktopKit/FDUserdirsFile.h>
+#endif
 
 #include "SnapshotController.h"
 #include "SnapshotIcon.h"
@@ -323,6 +323,11 @@ BOOL loadingThumbnails = NO;
 
 - (void) awakeFromNib
 {
+    double defaultWidth = [[NSUserDefaults standardUserDefaults] doubleForKey: @"ThumbnailWidth"];
+	if (defaultWidth != 0.) {
+        THUMBNAIL_WIDTH = defaultWidth;
+	}
+
     // We do not need the Abort button all the time
     [abort setHidden: YES];
     // Move the indicator every 12th sec.
@@ -351,7 +356,9 @@ BOOL loadingThumbnails = NO;
     if (refreshRunning && (TAG_HIDE !=[item tag])) {
         return NO;
     }
-    if (((TAG_SAVESEL == [item tag]) || (TAG_DELETE == [item tag]))
+    if (((TAG_SAVESEL == [item tag])
+               || (TAG_DELETE == [item tag])
+               || (TAG_OPEN == [item tag]))
             && (0 == [[iconView selectedIcons] count])) {
         return NO;
     }
@@ -371,7 +378,12 @@ BOOL loadingThumbnails = NO;
     if (image) {
         NSSize size = [image size];
         // scale the image to our tablerow width
-        double factor = THUMBNAIL_WIDTH / size.width;
+        double factor;
+		if (size.width >= size.height) {
+            factor = THUMBNAIL_WIDTH / size.width;
+		} else {
+            factor = THUMBNAIL_WIDTH / size.height;
+		}
         size.width *= factor;
         size.height *= factor;
         [image setScalesWhenResized: YES];
@@ -387,6 +399,25 @@ BOOL loadingThumbnails = NO;
 - (void) abortClicked: (id)sender
 {
     abortDownload = YES;
+}
+
+- (void) openSelectedClicked: (id)sender
+{
+    int idx = [cameraTree selectedRow];
+    OutlineItem * camera = [cameraTree itemAtRow: idx];
+    NSArray * images = [iconView selectedIcons];
+
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+	NSString *tempDir = NSTemporaryDirectory();
+    SnapshotIcon *image;
+
+    NSEnumerator *e = [images objectEnumerator];
+    while ((image = [e nextObject]) != nil) {
+        NSString *newFile = [self getUniqueNameForFile: [image fileName] atPath: tempDir];
+        [camera->camera getFile: [image fileName] from: camera->path toFile: newFile at: tempDir];
+        [ws openFile: [tempDir stringByAppendingPathComponent: newFile]];
+    }
+
 }
 
 - (void) deleteSelectedClicked: (id)sender
@@ -638,15 +669,15 @@ BOOL loadingThumbnails = NO;
     [dateFormatter setTimeStyle: NSDateFormatterMediumStyle];
     int i;
     for (i = 0; i < [ar count]; i++) {
-	NSString *fname = [ar objectAtIndex: i];
-	NSImage *icon = [self getThumbnail: camera->camera
+        NSString *fname = [ar objectAtIndex: i];
+        NSImage *icon = [self getThumbnail: camera->camera
                                    forFile: fname
                                     atPath: camera->path];
         NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
-	SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
+        SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
                                                              fileName: fname
                                                          andContainer: iconView];
-	[image setIconInfo: info];
+        [image setIconInfo: info];
         [camera->files addObject: image];
         [image autorelease];
     }
