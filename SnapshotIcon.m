@@ -45,7 +45,7 @@
     self = [super init];
 
     if (self) {
-	container = cont;
+        container = cont;
         ASSIGN(fileName, fname);
         ASSIGN(icon, img);
         iconSize = [icon size];
