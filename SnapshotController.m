@@ -645,15 +645,15 @@ BOOL loadingThumbnails = NO;
     [dateFormatter setTimeStyle: NSDateFormatterMediumStyle];
     int i;
     for (i = 0; i < [ar count]; i++) {
-	NSString *fname = [ar objectAtIndex: i];
-	NSImage *icon = [self getThumbnail: camera->camera
+        NSString *fname = [ar objectAtIndex: i];
+        NSImage *icon = [self getThumbnail: camera->camera
                                    forFile: fname
                                     atPath: camera->path];
         NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
-	SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
+        SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
                                                              fileName: fname
                                                          andContainer: iconView];
-	[image setIconInfo: info];
+        [image setIconInfo: info];
         [camera->files addObject: image];
         [image autorelease];
     }
