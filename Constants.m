@@ -27,6 +27,7 @@ const int TAG_HIDE = 1;
 const int TAG_REFRESH = 2;
 const int TAG_SAVESEL = 3;
 const int TAG_DELETE = 4;
+const int TAG_OPEN = 7;
 
 double THUMBNAIL_WIDTH = 120.;
 
