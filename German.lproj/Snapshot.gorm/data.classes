@@ -4,9 +4,10 @@
 	Actions = (
 	    "abortClicked:",
 	    "deleteSelectedClicked:",
-	    "showPreferences:",
+	    "openSelectedClicked:",
 	    "refreshClicked:",
 	    "saveSelectedClicked:",
+	    "showPreferences:",
 	    "showPropertyInspector:"
 	);
 	Super = NSObject;
@@ -25,7 +26,8 @@
 	    "abortClicked:",
 	    "deleteSelectedClicked:",
 	    "showPropertyInspector:",
-	    "showPreferences:"
+	    "showPreferences:",
+	    "openSelectedClicked:"
 	);
 	Outlets = (
 	    cameraTree,
