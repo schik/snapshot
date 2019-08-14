@@ -207,12 +207,6 @@
 
 	        NSString *value = [self getStringValue: ee];
 	        [dict setObject: value forKey: name];
-
-			if ([name isEqualToString: @"Orientation"]) {
-              ExifByteOrder byteOrder = exif_data_get_byte_order(edata);
-              int orientation = exif_get_short(ee->data, byteOrder);
-              [dict setObject: [NSNumber numberWithInt: orientation] forKey: @"OrientationNum"];
-			}
 		  }
         }
 	  }
@@ -228,19 +222,49 @@
   NSMutableDictionary *dict = [[NSMutableDictionary new] autorelease];
   [dict setDictionary: [self exifdataForFile: file inPath: path]];
 
-  int result;
-
   CameraFileInfo info;
-  result = gp_camera_file_get_info (theCamera, [path cString],
+  int result = gp_camera_file_get_info (theCamera, [path cString],
                   [file cString], &info, NULL);
   if (result >= 0) {
     if (info.file.fields & GP_FILE_INFO_SIZE) {
-	  [dict setObject: [NSNumber numberWithInteger: info.file.size] forKey: @"FileSize"];
+      [dict setObject: [NSNumber numberWithInteger: info.file.size] forKey: @"FileSize"];
     }
     if (info.file.fields & GP_FILE_INFO_MTIME) {
-	  [dict setObject: [NSDate dateWithTimeIntervalSince1970: info.file.mtime] forKey: @"Mtime"];
+      [dict setObject: [NSDate dateWithTimeIntervalSince1970: info.file.mtime] forKey: @"Mtime"];
     }
   } 
+
+  CameraFile *cfile;
+
+  gp_file_new(&cfile);
+  result = gp_camera_file_get (theCamera, [path cString],
+                  [file cString], GP_FILE_TYPE_EXIF, cfile, NULL);
+  if (result >= 0) {
+    const char *data;
+    unsigned long size;
+    gp_file_get_data_and_size(cfile, &data, &size);
+  
+    ExifData *edata = exif_data_new_from_data((const unsigned char *)data, size);
+    if (edata) {
+      ExifByteOrder byteOrder = exif_data_get_byte_order(edata);
+      ExifEntry *ee = exif_data_get_entry(edata, EXIF_TAG_ORIENTATION);
+	  if (ee) {
+        int orientation = exif_get_short(ee->data, byteOrder);
+        [dict setObject: [NSNumber numberWithInt: orientation] forKey: @"OrientationNum"];
+	  }
+      ee = exif_data_get_entry(edata, EXIF_TAG_DATE_TIME);
+      if (!ee) {
+        ee = exif_data_get_entry(edata, EXIF_TAG_DATE_TIME_ORIGINAL);
+	  } 
+	  if (ee) {
+        NSDateFormatter *df = [[NSDateFormatter new] autorelease];
+        [df setDateFormat: @"yyyy:MM:dd HH:mm:ss"];
+        [dict setObject: [df dateFromString: [self getStringValue: ee]] forKey: @"Mtime"];
+      }
+      exif_data_free(edata);
+    }
+  }
+  gp_file_unref(cfile);
   return [[NSDictionary alloc] initWithDictionary: dict];
 }
 
