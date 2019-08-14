@@ -210,8 +210,6 @@
 
     if (onself) {
         if ([theEvent clickCount] == 1) {
-            if (isSelected == NO) {
-            }
             if ([theEvent modifierFlags] & NSShiftKeyMask) {
                 [container setSelectionMask: SIMultipleSelectionMask];
                 if (isSelected) {
@@ -237,11 +235,32 @@
     [self setNeedsDisplay: YES];  
 }
 
-- (void)mouseUp:(NSEvent *)theEvent
+- (void) mouseUp: (NSEvent *) theEvent
 {
+	NSPoint location = [theEvent locationInWindow];
+    NSPoint selfloc = [self convertPoint: location fromView: nil];
+    BOOL onself = NO;
+
+    onself = ([self mouse: selfloc inRect: iconBounds]);
+
+    if (onself) {
+        if ([theEvent clickCount] == 2) {
+            [container setSelectionMask: SISingleSelectionMask];
+            if (isSelected == NO) {
+                [self select];
+            }
+            [[NSNotificationCenter defaultCenter]
+                postNotificationName: @"OpenSelectedImages"
+                              object: nil
+                            userInfo: nil];
+        } 
+    } else {
+        [container mouseUp: theEvent];
+    }
+
 }
 
-- (BOOL)acceptsFirstMouse:(NSEvent *)theEvent
+- (BOOL) acceptsFirstMouse: (NSEvent *) theEvent
 {
     return YES;
 }

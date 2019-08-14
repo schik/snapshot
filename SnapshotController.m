@@ -114,6 +114,7 @@ BOOL loadingThumbnails = NO;
 - (NSString *) getUniqueNameForFile: (NSString *) fname atPath: (NSString *) path;
 - (void) startProgressAnimationWithStatus: (NSString *) statusMsg;
 - (void) stopProgressAnimation;
+- (void) openSelectedImages: (NSNotification *) notification;
 
 @end
 
@@ -292,6 +293,11 @@ BOOL loadingThumbnails = NO;
     [progress setDoubleValue: 0.];
 }
 
+- (void) openSelectedImages: (NSNotification *) notification
+{
+    [self openSelectedClicked: self];
+}
+
 @end
 
 
@@ -306,12 +312,21 @@ BOOL loadingThumbnails = NO;
     self = [super init];
     if (self != nil) {
         photo2 = nil;
+
+        [[NSNotificationCenter defaultCenter] addObserver: self
+                                selector: @selector(openSelectedImages:)
+                                    name: @"OpenSelectedImages"
+                                  object: nil];
     }
     return self;
 }
 
 - (void) dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver: self
+                           name: @"OpenSelectedImages"
+                         object: nil];
+
     if (nil != photo2) {
         [photo2 release];
     }
