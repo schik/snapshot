@@ -390,6 +390,14 @@ BOOL loadingThumbnails = NO;
                     atPath: (NSString *)path
 {
     NSImage *image = [camera thumbnailForFile: file inPath: path];
+    if (nil == image) {
+        NSString *type = [camera mimetypeForFile: file inPath: path];
+        if ([type hasPrefix: @"video"]) {
+            NSBundle *aBundle = [NSBundle bundleForClass: [self class]];
+            image = [[[NSImage alloc] initWithContentsOfFile:
+                           [aBundle pathForResource: @"iconMovie" ofType: @"tiff"]] autorelease];
+        }
+	}
     if (image) {
         NSSize size = [image size];
         // scale the image to our tablerow width
@@ -403,12 +411,7 @@ BOOL loadingThumbnails = NO;
         size.height *= factor;
         [image setScalesWhenResized: YES];
         [image setSize: size];
-	} else {
-        NSString *type = [camera mimetypeForFile: file inPath: path];
-        if ([type hasPrefix: @"video"]) {
-            image = [[[[NSWorkspace sharedWorkspace] iconForFileType: [file pathExtension]] retain] autorelease];
-        }
-	}
+    }
     return image;
 }
 

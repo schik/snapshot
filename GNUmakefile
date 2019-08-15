@@ -27,6 +27,7 @@ endif
 
 Snapshot_RESOURCE_FILES= \
 	Images/Snapshot.tiff \
+	Images/iconMovie.tiff \
 	Images/iconDelete.tiff \
 	Images/iconMultiSelection.tiff
 
