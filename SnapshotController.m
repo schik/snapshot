@@ -679,9 +679,6 @@ BOOL loadingThumbnails = NO;
 
     OutlineItem *camera = (OutlineItem *)anObject;
     NSArray *ar = [camera->camera filesInPath: camera->path];
-    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateStyle: NSDateFormatterLongStyle];
-    [dateFormatter setTimeStyle: NSDateFormatterMediumStyle];
     int i;
     for (i = 0; i < [ar count]; i++) {
         NSString *fname = [ar objectAtIndex: i];
@@ -697,7 +694,6 @@ BOOL loadingThumbnails = NO;
         [image autorelease];
     }
     [ar release];
-    [dateFormatter release];
 
     loadingThumbnails = NO;
     [pool release];
