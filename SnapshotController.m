@@ -403,7 +403,12 @@ BOOL loadingThumbnails = NO;
         size.height *= factor;
         [image setScalesWhenResized: YES];
         [image setSize: size];
-    }
+	} else {
+        NSString *type = [camera mimetypeForFile: file inPath: path];
+        if ([type hasPrefix: @"video"]) {
+            image = [[[[NSWorkspace sharedWorkspace] iconForFileType: [file pathExtension]] retain] autorelease];
+        }
+	}
     return image;
 }
 
