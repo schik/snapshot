@@ -685,13 +685,15 @@ BOOL loadingThumbnails = NO;
         NSImage *icon = [self getThumbnail: camera->camera
                                    forFile: fname
                                     atPath: camera->path];
-        NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
-        SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
-                                                             fileName: fname
-                                                         andContainer: iconView];
-        [image setIconInfo: info];
-        [camera->files addObject: image];
-        [image autorelease];
+        if (nil != icon) {
+            NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
+            SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
+                                                                 fileName: fname
+                                                             andContainer: iconView];
+            [image setIconInfo: info];
+            [camera->files addObject: image];
+            [image autorelease];
+        }
     }
     [ar release];
 
