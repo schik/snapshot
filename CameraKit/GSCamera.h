@@ -26,6 +26,7 @@
 - (void) putFile: (NSString *)file from: (NSString *)srcPath to: (NSString *)destPath;
 - (NSString *) description;
 - (NSImage *) thumbnailForFile: (NSString *)file inPath: (NSString *)path;
+- (NSString *) mimetypeForFile: (NSString *)file inPath: (NSString *)path;
 - (NSDictionary *) exifdataForFile: (NSString *)file inPath: (NSString *)path;
 - (NSDictionary *)infoForFile: (NSString *)file inPath: (NSString *)path;
 

@@ -159,17 +159,29 @@
   int result = gp_camera_file_get (theCamera, [path cString],
                   [file cString], GP_FILE_TYPE_PREVIEW, cfile, NULL);
   if (result >= 0) {
-      const char *fd;
-      unsigned long fs;
+    const char *fd;
+    unsigned long fs;
 
-      gp_file_get_data_and_size (cfile, &fd, &fs);
+    gp_file_get_data_and_size (cfile, &fd, &fs);
 
-      NSData *data = [NSData dataWithBytes: fd length: fs];
-      image = [[NSImage alloc] initWithData: data];
-  } 
+    NSData *data = [NSData dataWithBytes: fd length: fs];
+    image = [[NSImage alloc] initWithData: data];
+  }
 	
   gp_file_unref (cfile);
   return [image autorelease];
+}
+
+- (NSString *) mimetypeForFile: (NSString *)file inPath: (NSString *)path
+{
+  NSString *type = nil;
+  CameraFileInfo info;
+  int result = gp_camera_file_get_info (theCamera, [path cString],
+                  [file cString], &info, NULL);
+  if ((result >= 0) && (info.file.fields & GP_FILE_INFO_TYPE)) {
+    type = [[NSString alloc] initWithCString: info.file.type];
+  }
+  return [type autorelease];
 }
 
 - (NSString *) getStringValue: (ExifEntry *) ee
