@@ -81,8 +81,8 @@ BOOL loadingThumbnails = NO;
     self = [super init];
     if (self != nil) {
         camera = nil;
-	path = nil;
-	subFolders = nil;
+    path = nil;
+    subFolders = nil;
         files = nil;
     }
     return self;
@@ -140,20 +140,20 @@ BOOL loadingThumbnails = NO;
         }
     } else {
         NSString *dest = [self getDestination];
-		if (nil == dest) {
-			// w/o dest dir no save
-        	NSRunAlertPanel(_(@"Import images"),
+        if (nil == dest) {
+            // w/o dest dir no save
+            NSRunAlertPanel(_(@"Import images"),
                 _(@"You must set the import folder in the preferences before importing images."),
-               	@"Ok", nil, nil); 
-			return;
-		}
+                   @"Ok", nil, nil); 
+            return;
+        }
         [threadParams setObject: dest forKey: DOWNLOAD_PATH];
-		int useTsDir = [[NSUserDefaults standardUserDefaults]
-			integerForKey: @"UseTimestampDirectory"];
+        int useTsDir = [[NSUserDefaults standardUserDefaults]
+                                integerForKey: @"UseTimestampDirectory"];
         NSString *format = nil;
-		if (useTsDir) {
-			format = [[NSUserDefaults standardUserDefaults] stringForKey: TIMESTAMP_PATH_FORMAT];
-		}
+        if (useTsDir) {
+            format = [[NSUserDefaults standardUserDefaults] stringForKey: TIMESTAMP_PATH_FORMAT];
+        }
         if (nil != format) {
             [threadParams setObject: format forKey: TIMESTAMP_PATH_FORMAT];
         }
@@ -196,7 +196,7 @@ BOOL loadingThumbnails = NO;
     while (downloadRunning && [theRL runMode: NSDefaultRunLoopMode beforeDate:
                                                     [NSDate dateWithTimeIntervalSinceNow: .5]]) {
         [statusText setStringValue: [NSString stringWithFormat: statusString, downloadImage]];
-	[progress setDoubleValue: downloadCounter];
+        [progress setDoubleValue: downloadCounter];
     }
 
     // Update the UI
@@ -229,17 +229,17 @@ BOOL loadingThumbnails = NO;
     NSString *dest = [defs stringForKey: @"ImportDirectory"];
 
     if ((nil == dest) || ([dest length] == 0)) {
-		// Seems like prefs are not set, yet
-		[self showPreferences: self];
-    	dest = [defs stringForKey: @"ImportDirectory"];
+        // Seems like prefs are not set, yet
+        [self showPreferences: self];
+        dest = [defs stringForKey: @"ImportDirectory"];
     }
 
     if ((nil == dest) || ([dest length] == 0)) {
-		// prefs are still not set -> bail out
-		return nil;
-	}
+        // prefs are still not set -> bail out
+        return nil;
+    }
 
-	return dest;
+    return dest;
 }
 
 - (NSString *) getUniqueNameForFile: (NSString *) fname atPath: (NSString *) path
@@ -252,7 +252,7 @@ BOOL loadingThumbnails = NO;
     NSFileManager *fm = [NSFileManager defaultManager];
     BOOL isDirectory;
 
-	NSString *toTest = [path stringByAppendingPathComponent: fname];
+    NSString *toTest = [path stringByAppendingPathComponent: fname];
     // file does not exist, so the path doesn't need to change
     if (![fm fileExistsAtPath: toTest isDirectory: &isDirectory]) {
         return fname;
@@ -261,16 +261,16 @@ BOOL loadingThumbnails = NO;
     NSString *fileName = isDirectory ? fname : [fname stringByDeletingPathExtension];
     NSString *ext = isDirectory ? @"" : [NSString stringWithFormat:@".%@", [fname pathExtension]];
 
-	NSString *result = nil;
+    NSString *result = nil;
     int counter = 1;
-	while (nil == result) {
-		toTest = [path stringByAppendingPathComponent:
-			[NSString stringWithFormat:@"%@-%i%@", fileName, counter, ext]];
+    while (nil == result) {
+        toTest = [path stringByAppendingPathComponent:
+            [NSString stringWithFormat:@"%@-%i%@", fileName, counter, ext]];
         if (![fm fileExistsAtPath: toTest isDirectory: &isDirectory]) {
             result = [NSString stringWithFormat:@"%@-%i%@", fileName, counter, ext];
         }
         counter++;
-	}
+    }
     return result;
 }
 
@@ -339,9 +339,9 @@ BOOL loadingThumbnails = NO;
 - (void) awakeFromNib
 {
     double defaultWidth = [[NSUserDefaults standardUserDefaults] doubleForKey: @"ThumbnailWidth"];
-	if (defaultWidth != 0.) {
+    if (defaultWidth != 0.) {
         THUMBNAIL_WIDTH = defaultWidth;
-	}
+    }
 
     // We do not need the Abort button all the time
     [abort setHidden: YES];
@@ -394,11 +394,11 @@ BOOL loadingThumbnails = NO;
         NSSize size = [image size];
         // scale the image to our tablerow width
         double factor;
-		if (size.width >= size.height) {
+        if (size.width >= size.height) {
             factor = THUMBNAIL_WIDTH / size.width;
-		} else {
+        } else {
             factor = THUMBNAIL_WIDTH / size.height;
-		}
+        }
         size.width *= factor;
         size.height *= factor;
         [image setScalesWhenResized: YES];
@@ -423,7 +423,7 @@ BOOL loadingThumbnails = NO;
     NSArray * images = [iconView selectedIcons];
 
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-	NSString *tempDir = NSTemporaryDirectory();
+    NSString *tempDir = NSTemporaryDirectory();
     SnapshotIcon *image;
 
     NSEnumerator *e = [images objectEnumerator];
@@ -519,7 +519,7 @@ BOOL loadingThumbnails = NO;
 {
     if (nil != photo2) {
         [photo2 release];
-	photo2 = nil;
+        photo2 = nil;
     }
     // We do not know how long it will take. Hence use an
     // indeterminate progress bar here.
@@ -604,8 +604,8 @@ BOOL loadingThumbnails = NO;
     
     if (item == nil) {
         camera = [[OutlineItem new] autorelease];
-	camera->camera = [photo2 cameraAtIndex: index];
-	camera->path = @"/";
+        camera->camera = [photo2 cameraAtIndex: index];
+        camera->path = @"/";
     }
     if ([item isKindOfClass: [OutlineItem class]]) {
         OutlineItem *parent = (OutlineItem*)item;
@@ -623,8 +623,8 @@ BOOL loadingThumbnails = NO;
         [NSThread detachNewThreadSelector: @selector(loadFoldersThread:)
                                  toTarget: self
                                withObject: camera];
-        while (loadingFolders && [theRL runMode: NSDefaultRunLoopMode beforeDate:
-                                                    [NSDate dateWithTimeIntervalSinceNow: .5]]);
+        while (loadingFolders && [theRL runMode: NSDefaultRunLoopMode
+                                     beforeDate: [NSDate dateWithTimeIntervalSinceNow: .5]]);
 
         [self stopProgressAnimation];
     }
@@ -647,7 +647,7 @@ BOOL loadingThumbnails = NO;
         return [photo2 numberOfCameras];
     }
     if ([item isKindOfClass: [OutlineItem class]]) {
-	return [((OutlineItem*)item)->subFolders count];
+        return [((OutlineItem*)item)->subFolders count];
     }
     return 0;
 }
@@ -717,7 +717,7 @@ BOOL loadingThumbnails = NO;
         [self startProgressAnimationWithStatus: _(@"Loading image information from camera.")];
 
         loadingThumbnails = YES;
-	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
+        NSRunLoop *theRL = [NSRunLoop currentRunLoop];
 
         [NSThread detachNewThreadSelector: @selector(loadImagesThread:)
                                  toTarget: self
@@ -725,18 +725,18 @@ BOOL loadingThumbnails = NO;
         while (loadingThumbnails && [theRL runMode: NSDefaultRunLoopMode
                                         beforeDate: [NSDate dateWithTimeIntervalSinceNow: .5]]) {
             unsigned current = [camera->files count];
-	    if ((current - count) >= 10) {
-		unsigned i;
+            if ((current - count) >= 10) {
+                unsigned i;
                 for (i = count; i < current; i++) {
                     SnapshotIcon *icon = [camera->files objectAtIndex: i];
                     [iconView addIcon: icon];
                 }
                 [iconView tile];
-		count = current;
+                count = current;
             }
         }
 
-	[self stopProgressAnimation];
+        [self stopProgressAnimation];
     }
 
     // add remaining icons
