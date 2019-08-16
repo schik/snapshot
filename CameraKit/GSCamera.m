@@ -172,18 +172,6 @@
   return [image autorelease];
 }
 
-- (NSString *) mimetypeForFile: (NSString *)file inPath: (NSString *)path
-{
-  NSString *type = nil;
-  CameraFileInfo info;
-  int result = gp_camera_file_get_info (theCamera, [path cString],
-                  [file cString], &info, NULL);
-  if ((result >= 0) && (info.file.fields & GP_FILE_INFO_TYPE)) {
-    type = [[NSString alloc] initWithCString: info.file.type];
-  }
-  return [type autorelease];
-}
-
 - (NSString *) getStringValue: (ExifEntry *) ee
 {
     char v[1024];
@@ -243,6 +231,9 @@
     }
     if (info.file.fields & GP_FILE_INFO_MTIME) {
       [dict setObject: [NSDate dateWithTimeIntervalSince1970: info.file.mtime] forKey: @"Mtime"];
+    }
+    if (info.file.fields & GP_FILE_INFO_TYPE) {
+      [dict setObject: [NSString stringWithCString: info.file.type] forKey: @"MimeType"];
     }
   } 
 
