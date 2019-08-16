@@ -25,11 +25,26 @@
 #include "NSImage+Transform.h"
 #include "SnapshotIcon.h"
 #include "SnapshotIconView.h"
+#include "Constants.h"
 
+static NSImage *imagePlay = nil;
 
 @implementation SnapshotIcon
 
-- (void)dealloc
++ (void) initialize
+{
+    static BOOL initialized = NO;
+
+    if (initialized == NO) {
+        NSBundle *aBundle = [NSBundle bundleForClass: [self class]];
+        imagePlay = [[NSImage alloc] initWithContentsOfFile:
+                       [aBundle pathForResource: @"iconPlay" ofType: @"tiff"]];
+        initialized	= YES;
+    }
+    
+}
+
+- (void) dealloc
 {
     RELEASE(icon);
     RELEASE(fileName);
@@ -317,6 +332,10 @@
         [path stroke];
     }
     [icon compositeToPoint: iconPoint operation: NSCompositeSourceOver];
+    NSString *type = [iconInfo objectForKey: @"MimeType"];
+    if ([type hasPrefix: @"video"]) {
+        [imagePlay compositeToPoint: iconPoint operation: NSCompositeSourceOver];
+    }
 }
 
 @end

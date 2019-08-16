@@ -342,6 +342,9 @@ BOOL loadingThumbnails = NO;
     if (defaultWidth != 0.) {
         THUMBNAIL_WIDTH = defaultWidth;
     }
+    if (THUMBNAIL_WIDTH < 48.) {
+        THUMBNAIL_WIDTH = 48.;
+    }
 
     // We do not need the Abort button all the time
     [abort setHidden: YES];
@@ -391,14 +394,11 @@ BOOL loadingThumbnails = NO;
 {
     NSImage *image = [camera thumbnailForFile: file inPath: path];
     if (nil == image) {
-        NSString *type = [camera mimetypeForFile: file inPath: path];
-        if ([type hasPrefix: @"video"]) {
-            NSBundle *aBundle = [NSBundle bundleForClass: [self class]];
-            image = [[[NSImage alloc] initWithContentsOfFile:
-                           [aBundle pathForResource: @"iconMovie" ofType: @"tiff"]] autorelease];
-        }
-	}
-    if (image) {
+        NSBundle *aBundle = [NSBundle bundleForClass: [self class]];
+        image = [[[NSImage alloc] initWithContentsOfFile:
+                       [aBundle pathForResource: @"iconEmpty" ofType: @"tiff"]] autorelease];
+    }
+    if (nil != image) {
         NSSize size = [image size];
         // scale the image to our tablerow width
         double factor;
@@ -690,18 +690,24 @@ BOOL loadingThumbnails = NO;
     int i;
     for (i = 0; i < [ar count]; i++) {
         NSString *fname = [ar objectAtIndex: i];
-        NSImage *icon = [self getThumbnail: camera->camera
-                                   forFile: fname
-                                    atPath: camera->path];
-        if (nil != icon) {
-            NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
-            SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
-                                                                 fileName: fname
-                                                             andContainer: iconView];
-            [image setIconInfo: info];
-            [camera->files addObject: image];
-            [image autorelease];
-        }
+        NSDictionary *info = [camera->camera infoForFile: fname inPath: camera->path];
+        NSString *type = [info objectForKey: @"MimeType"];
+        if ([type hasPrefix: @"video"]
+				|| [type hasPrefix: @"image"]) {
+            
+            NSImage *icon = [self getThumbnail: camera->camera
+                                       forFile: fname
+                                        atPath: camera->path];
+            if (nil != icon) {
+                SnapshotIcon *image = [[SnapshotIcon alloc] initWithIconImage: icon
+                                                                     fileName: fname
+                                                                 andContainer: iconView];
+                [image setIconInfo: info];
+                [camera->files addObject: image];
+                [image autorelease];
+                [info autorelease];
+            }
+		}
     }
     [ar release];
 
